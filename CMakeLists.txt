@@ -3,7 +3,7 @@
 project ("ReferenceTracker" VERSION 1.0.0 LANGUAGES CXX)
 
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(CMAKE_AUTOMOC ON)
@@ -14,12 +14,41 @@ if(CMAKE_VERSION VERSION_LESS "3.7.0")
     set(CMAKE_INCLUDE_CURRENT_DIR ON)
 endif()
 
-find_package(Qt5 COMPONENTS Widgets REQUIRED)
+find_package(Qt5 COMPONENTS Widgets 3DCore Multimedia REQUIRED)
+if (${Qt5_FOUND})
+    message("Package Qt trouvé : " ${Qt5_VERSION})
+else()
+    message("Impossible de trouver le package Qt. Il faut vérifier qu'une version de Qt est dans la variable d'environnement CMAKE_PREFIX_PATH.")
+endif()
 find_package(OpenCV REQUIRED)
 
 INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS} )
 
-add_executable (ReferenceTracker "ReferenceTracker.cpp" "ReferenceTracker.h")
+add_executable (ReferenceTracker
+    # Les données.
+    "Data/TrackedPoint.cpp"
+    "Data/TrackedPoint.h"
 
-target_link_libraries(ReferenceTracker Qt5::Widgets)
-target_link_libraries(ReferenceTracker ${OpenCV_LIBS}) 
+    "Data/Video.h"
+    "Data/Video.cpp"
+
+    "Data/Document.cpp" 
+    "Data/Document.h"
+
+    # L'interface graphique.
+    "UI/TypeSafeSettings.h"
+    "UI/TypeSafeSettings.cpp"
+
+    "UI/VideoPlayer.ui"
+    "UI/VideoPlayer.cpp"
+    "UI/VideoPlayer.h"
+
+    "UI/MainWindow.ui"
+    "UI/MainWindow.cpp"
+    "UI/MainWindow.h"
+
+    # Le fichier de démarrage.
+    "main.cpp")
+
+target_link_libraries(ReferenceTracker Qt5::Widgets Qt5::Multimedia Qt5::3DCore)
+target_link_libraries(ReferenceTracker ${OpenCV_LIBS})
