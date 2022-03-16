@@ -6,6 +6,7 @@
 #include <QResizeEvent>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QFileInfo>
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
@@ -49,8 +50,10 @@ void MainWindow::ManualUiSetup()
 	globalVerticalSplitter->addWidget(&m_videoPlayer);
 	globalVerticalSplitter->addWidget(bottomHorizontalSplitter);
 
-
 	setCentralWidget(globalVerticalSplitter);
+
+	// Dynamic menus setup.
+	GenerateRecentVideosMenu();
 }
 
 void MainWindow::ApplyUiSettings()
@@ -64,16 +67,32 @@ void MainWindow::OpenVideoMenuItemClicked()
 {
 	const QString fileName = QFileDialog::getOpenFileName(
 		this, "Save As", "", tr("Video file (*.mp4 *.avi)"));
+	OpenVideo(fileName);
+}
 
-	if (!fileName.isEmpty())
+void MainWindow::GenerateRecentVideosMenu()
+{
+	ui->openRecentVideoMenu->clear();
+
+	const QStringList recentVideoPaths = m_typeSafeSettings.GetRecentVideos();
+	for (const QString& path : recentVideoPaths)
 	{
-		if(m_document.GetVideo().LoadFromFile(fileName))
+		const QFileInfo fileInfo(path);
+		ui->openRecentVideoMenu->addAction(fileInfo.fileName(), [this, path] {OpenVideo(path); });
+	}
+}
+
+void MainWindow::OpenVideo(const QString& path)
+{
+	if (!path.isEmpty())
+	{
+		if (m_document.GetVideo().LoadFromFile(path))
 		{
-			m_typeSafeSettings.AddRecentVideo(fileName);
+			m_typeSafeSettings.AddRecentVideo(path);
 		}
 		else
 		{
-			QMessageBox::warning(this, "Could not open the video.", fileName);
+			QMessageBox::warning(this, "Could not open the video.", path);
 		}
 	}
 }

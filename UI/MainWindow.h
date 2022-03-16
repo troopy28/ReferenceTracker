@@ -30,6 +30,12 @@ private:
 
 	// Menu bar callbacks.
 	void OpenVideoMenuItemClicked();
+	
+	// Recent projects / videos menu management.
+	void GenerateRecentVideosMenu();
+
+	// MISC.
+	void OpenVideo(const QString& path);
 
 	Data::Document m_document;
 	TypeSafeSettings m_typeSafeSettings;
