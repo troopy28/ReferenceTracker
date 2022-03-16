@@ -24,7 +24,7 @@ namespace Data
 		_NODISCARD int GetFrameRate() const;
 		_NODISCARD int GetFrameCount() const;
 
-		void LoadFromFile(const QString& path);
+		bool LoadFromFile(const QString& path);
 		void ReadFrameAtIndex(const int& index);
 
 	public slots:
@@ -32,6 +32,7 @@ namespace Data
 
 	signals:
 		void FrameChanged(int frameIndex);
+		void VideoLoaded();
 
 	private:
 		QString m_filePath;

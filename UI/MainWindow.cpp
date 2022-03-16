@@ -19,6 +19,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	ApplyUiSettings();
 
 	connect(ui->actionOpen_Video, &QAction::triggered, this, &MainWindow::OpenVideoMenuItemClicked);
+
+	m_videoPlayer.Render(0);
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
@@ -63,10 +65,17 @@ void MainWindow::OpenVideoMenuItemClicked()
 	const QString fileName = QFileDialog::getOpenFileName(
 		this, "Save As", "", tr("Video file (*.mp4 *.avi)"));
 
-	if (fileName.isEmpty())
-		QMessageBox::warning(this, "Incorrect file path.", fileName);
-	else
-		m_document.GetVideo().LoadFromFile(fileName);
+	if (!fileName.isEmpty())
+	{
+		if(m_document.GetVideo().LoadFromFile(fileName))
+		{
+			m_typeSafeSettings.AddRecentVideo(fileName);
+		}
+		else
+		{
+			QMessageBox::warning(this, "Could not open the video.", fileName);
+		}
+	}
 }
 
 

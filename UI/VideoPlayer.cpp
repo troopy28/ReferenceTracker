@@ -1,6 +1,8 @@
 #include "VideoPlayer.h"
 #include "ui_VideoPlayer.h"
 #include <QPixmap>
+#include <QGraphicsRectItem>
+#include <QPen>
 
 VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
 	QWidget(parent),
@@ -13,19 +15,34 @@ VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
 	ui->graphicsView->setScene(new QGraphicsScene(this));
 	ui->graphicsView->scene()->addItem(&m_pixmapDisplayer);
 
-	// Connect the UI buttons.
-	connect(ui->playBtn, &QPushButton::clicked, this, &VideoPlayer::Play);
-	connect(ui->pauseBtn, &QPushButton::clicked, this, &VideoPlayer::Pause);
-	connect(ui->nextFrameBtn, &QPushButton::clicked, this, &VideoPlayer::GoToNextFrame);
-	connect(ui->goToPreviousFrameBtn, &QPushButton::clicked, this, &VideoPlayer::GoToPreviousFrame);
-	connect(ui->firstFrameBtn, &QPushButton::clicked, this, &VideoPlayer::GoToFirstFrame);
-	connect(ui->lastFrameBtn, &QPushButton::clicked, this, &VideoPlayer::GoToLastFrame);
+	// Set the icons.
 
-	// Connect the video display event.
+	//ui->firstFrameBtn->setFixedSize(100, 100);
+	ui->firstFrameBtn->setIcon(QIcon(QPixmap(":/Resources/first_frame.png")));
+	ui->previousFrameBtn->setIcon(QIcon(QPixmap(":/Resources/previous_frame.png")));
+	ui->pauseBtn->setIcon(QIcon(QPixmap(":/Resources/pause.png")));
+	ui->playBtn->setIcon(QIcon(QPixmap(":/Resources/play.png")));
+	ui->nextFrameBtn->setIcon(QIcon(QPixmap(":/Resources/next_frame.png")));
+	ui->lastFrameBtn->setIcon(QIcon(QPixmap(":/Resources/last_frame.png")));
+	// ui->firstFrameBtn->setIconSize(QSize(16, 16));
+
+
+	// Connect the UI buttons.
+	connect(ui->playBtn, &QToolButton::clicked, this, &VideoPlayer::Play);
+	connect(ui->pauseBtn, &QToolButton::clicked, this, &VideoPlayer::Pause);
+	connect(ui->nextFrameBtn, &QToolButton::clicked, this, &VideoPlayer::GoToNextFrame);
+	connect(ui->previousFrameBtn, &QToolButton::clicked, this, &VideoPlayer::GoToPreviousFrame);
+	connect(ui->firstFrameBtn, &QToolButton::clicked, this, &VideoPlayer::GoToFirstFrame);
+	connect(ui->lastFrameBtn, &QToolButton::clicked, this, &VideoPlayer::GoToLastFrame);
+
+	// Connect the video-related events.
 	connect(&m_video, &Data::Video::FrameChanged, this, &VideoPlayer::Render);
+	connect(&m_video, &Data::Video::VideoLoaded, this, &VideoPlayer::OnVideoLoaded);
 
 	// Connect the timer's timeout event to the ReadNextFrame function of the video object.
 	connect(&m_timer, &QTimer::timeout, this, &VideoPlayer::TimerTick);
+
+	CenterVideo();
 }
 
 VideoPlayer::~VideoPlayer()
@@ -44,7 +61,7 @@ void VideoPlayer::TimerTick()
 	m_video.ReadNextFrame();
 
 	// If we reach the end of the video, stop playing.
-	if(m_video.GetCurrentFrameIndex() >= m_video.GetFrameCount())
+	if (m_video.GetCurrentFrameIndex() >= m_video.GetFrameCount())
 	{
 		m_timer.stop();
 	}
@@ -80,6 +97,35 @@ void VideoPlayer::GoToLastFrame()
 	m_video.ReadFrameAtIndex(m_video.GetFrameCount() - 1);
 }
 
+void VideoPlayer::OnVideoLoaded()
+{
+	// 1. Enable the player's UI.
+	ui->firstFrameBtn->setEnabled(true);
+	ui->previousFrameBtn->setEnabled(true);
+	ui->pauseBtn->setEnabled(true);
+	ui->playBtn->setEnabled(true);
+	ui->nextFrameBtn->setEnabled(true);
+	ui->lastFrameBtn->setEnabled(true);
+
+	// 2. Center the video.
+	CenterVideo();
+}
+
+void VideoPlayer::CenterVideo()
+{
+	// 2. Center the video.
+	const int width = m_video.GetWidth();
+	const int height = m_video.GetHeigth();
+	const int controlWidth = ui->graphicsView->width();
+	const int controlHeight = ui->graphicsView->height();
+
+	const int xCenter = controlWidth / 2 - width / 2;
+	const int yCenter = controlHeight / 2 - height / 2;
+	m_pixmapDisplayer.setPos(xCenter, yCenter);
+
+	ui->graphicsView->setSceneRect(0, 0, ui->graphicsView->width(), ui->graphicsView->height());
+}
+
 
 void VideoPlayer::Render(const int)
 {
@@ -93,4 +139,11 @@ void VideoPlayer::Render(const int)
 	QPixmap pixmap;
 	pixmap.convertFromImage(image);
 	m_pixmapDisplayer.setPixmap(pixmap);
+}
+
+void VideoPlayer::resizeEvent(QResizeEvent* event)
+{
+	QWidget::resizeEvent(event);
+
+	CenterVideo();
 }

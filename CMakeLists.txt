@@ -24,7 +24,12 @@ find_package(OpenCV REQUIRED)
 
 INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS} )
 
+qt5_add_resources(SOURCES )
+
 add_executable (ReferenceTracker
+    # Les ressources.
+    "resources.qrc"
+
     # Les données.
     "Data/TrackedPoint.cpp"
     "Data/TrackedPoint.h"

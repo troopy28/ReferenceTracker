@@ -34,3 +34,17 @@ bool TypeSafeSettings::IsMaximized() const
 {
 	return m_settings.value(IS_MAXIMIZED, false).toBool();
 }
+
+void TypeSafeSettings::AddRecentVideo(const QString& path)
+{
+	QStringList recentVids = GetRecentVideos();
+	if (recentVids.contains(path))
+		recentVids.removeAll(path);
+	recentVids.insert(0, path);
+	m_settings.setValue(RECENT_VIDEOS, recentVids);
+}
+
+QStringList TypeSafeSettings::GetRecentVideos() const
+{
+	return m_settings.value(RECENT_VIDEOS, QStringList()).toStringList();
+}

@@ -1,0 +1,14 @@
+<RCC>
+    <qresource prefix="">
+		<!-- Images. -->
+	    <file>Resources/first_frame.png</file>
+		<file>Resources/last_frame.png</file>
+		<file>Resources/next_frame.png</file>
+	    <file>Resources/previous_frame.png</file>
+		<file>Resources/pause.png</file>
+        <file>Resources/play.png</file>
+
+		<!-- Stylesheet. -->
+		<file>Resources/style.css</file>
+    </qresource>
+</RCC>

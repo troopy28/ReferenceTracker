@@ -19,6 +19,9 @@ public:
 	~VideoPlayer() override;
 	Q_DISABLE_COPY_MOVE(VideoPlayer);
 
+	void Render(int currentFrame);
+
+	void resizeEvent(QResizeEvent* event) override;
 
 private:
 	void Play();
@@ -29,8 +32,8 @@ private:
 	void GoToFirstFrame();
 	void GoToLastFrame();
 
-	void Render(int currentFrame);
-
+	void OnVideoLoaded();
+	void CenterVideo();
 
 	Ui::VideoPlayer* ui;
 	Data::Video& m_video;

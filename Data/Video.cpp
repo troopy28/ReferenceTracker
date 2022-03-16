@@ -6,12 +6,12 @@ namespace Data
 {
 	Video::Video() :
 		m_filePath(),
-		m_frameMat(),
+		m_frameMat(720, 1280, CV_8UC3, cv::Scalar(0.0, 0.0, 0.0)),
 		m_frameCount(0),
 		m_frameRate(-1),
 		m_currentFrameIndex(0),
-		m_width(0),
-		m_height(0),
+		m_width(1280),
+		m_height(720),
 		m_capture()
 	{
 		m_frameMat.setTo(cv::Scalar(0.0, 0.0, 0.0));
@@ -42,13 +42,13 @@ namespace Data
 		return *this;
 	}
 
-	void Video::LoadFromFile(const QString& path)
+	bool Video::LoadFromFile(const QString& path)
 	{
 		// 1. Before changing anything, ensure the file at the specified path exists.
 		if (!QFile::exists(path))
 		{
 			qWarning() << "Video at" << path << "does not exist.";
-			return;
+			return false;
 		}
 
 		// 2. Reset all the members of the class: if loading the video fails, this class must hold no
@@ -57,8 +57,6 @@ namespace Data
 		m_currentFrameIndex = 0;
 		m_frameRate = 0;
 		m_frameCount = 0;
-		m_width = 0;
-		m_height = 0;
 		if (m_capture.isOpened())
 			m_capture.release();
 		m_frameMat.setTo(cv::Scalar(0.0, 0.0, 0.0));
@@ -75,10 +73,13 @@ namespace Data
 		else
 		{
 			qWarning() << "Could not load the video at" << path << "(but the file does exist -- make sure it is a video).";
+			return false;
 		}
+		emit VideoLoaded();
 
 		// 4. Load the first frame of the video.
 		ReadNextFrame();
+		return true;
 	}
 
 	void Video::ReadNextFrame()

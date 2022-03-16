@@ -1,0 +1,50 @@
+QToolButton {
+    background-color: rgb(42, 42, 42);
+    border-style: outset;
+    border-width: 0;
+}
+
+QMainWindow {
+    background-color: rgb(42, 42, 42);
+    border-style: outset;
+    border-width: 0;
+}
+
+QGraphicsView {
+    background-color: rgb(35, 35, 35);
+    border-style: outset;
+    border-width: 0;
+}
+
+QGraphicsPixmapItem {
+    background-color: rgb(10, 10, 10);
+    border-style: outset;
+    border-width: 0;
+}
+
+QListView, QTextEdit {
+    background-color: rgb(42, 42, 42);
+    border-style: outset;
+    border-width: 0;
+}
+
+QStatusBar {
+    background-color: rgb(20, 20, 20);
+}
+
+
+/* QSplitter. */
+
+
+QSplitter::handle {
+    background-color: rgb(20, 20, 20);
+}
+
+QSplitter::handle:horizontal {
+    width: 5px;
+}
+
+QSplitter::handle:vertical {
+    height: 5px;
+}
+

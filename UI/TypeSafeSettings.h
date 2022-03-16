@@ -16,9 +16,13 @@ public:
 	void SetMaximized(bool maximized);
 	_NODISCARD bool IsMaximized() const;
 
+	void AddRecentVideo(const QString& path);
+	_NODISCARD QStringList GetRecentVideos() const;
+
 private:
 	static const inline QString MINIMZED_WIDTH = "MINIMZED_WIDTH";
 	static const inline QString MINIMZED_HEIGHT = "MINIMZED_HEIGHT";
 	static const inline QString IS_MAXIMIZED = "IS_MAXIMIZED";
+	static const inline QString RECENT_VIDEOS = "RECENT_VIDEOS";
 	QSettings m_settings;
 };

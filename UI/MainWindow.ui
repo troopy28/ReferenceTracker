@@ -27,11 +27,17 @@
     <property name="title">
      <string>File</string>
     </property>
+    <widget class="QMenu" name="menuOpen_Recent_Video">
+     <property name="title">
+      <string>Open Recent Video</string>
+     </property>
+    </widget>
     <addaction name="actionNew"/>
     <addaction name="actionOpen"/>
     <addaction name="actionOpen_Recent"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_Video"/>
+    <addaction name="menuOpen_Recent_Video"/>
     <addaction name="separator"/>
     <addaction name="actionSave"/>
     <addaction name="actionSave_As"/>
@@ -92,6 +98,11 @@
   <action name="actionOpen_Video">
    <property name="text">
     <string>Open Video</string>
+   </property>
+  </action>
+  <action name="actionabc">
+   <property name="text">
+    <string>abc</string>
    </property>
   </action>
  </widget>
