@@ -22,20 +22,19 @@ public:
 
 	void resizeEvent(QResizeEvent* event) override;
 
+protected:
+	void changeEvent(QEvent* e) override;
 
 private:
 	// UI initialization.
 	void ManualUiSetup();
 	void ApplyUiSettings();
 
-	// Menu bar callbacks.
+	// Menu bar management.
 	void OpenVideoMenuItemClicked();
-	
-	// Recent projects / videos menu management.
 	void GenerateRecentVideosMenu();
-
-	// MISC.
 	void OpenVideo(const QString& path);
+
 
 	Data::Document m_document;
 	TypeSafeSettings m_typeSafeSettings;

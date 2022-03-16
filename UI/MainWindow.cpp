@@ -7,6 +7,7 @@
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QFileInfo>
+#include <QDebug>
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
@@ -29,6 +30,16 @@ void MainWindow::resizeEvent(QResizeEvent* event)
 	QMainWindow::resizeEvent(event);
 	m_typeSafeSettings.SetMinimizedWidth(event->size().width());
 	m_typeSafeSettings.SetMinimizeHeight(event->size().height());
+}
+
+void MainWindow::changeEvent(QEvent* e)
+{
+	QMainWindow::changeEvent(e);
+
+	if (e->type() == QEvent::WindowStateChange)
+	{
+		m_typeSafeSettings.SetMaximized(this->windowState() & Qt::WindowMaximized);
+	}
 }
 
 void MainWindow::ManualUiSetup()
@@ -59,6 +70,8 @@ void MainWindow::ManualUiSetup()
 void MainWindow::ApplyUiSettings()
 {
 	resize(m_typeSafeSettings.GetMinimizedWidth(), m_typeSafeSettings.GetMinimizedHeight());
+	if (m_typeSafeSettings.IsMaximized())
+		setWindowState(Qt::WindowMaximized);
 }
 
 #pragma region Menu bar callbacks
