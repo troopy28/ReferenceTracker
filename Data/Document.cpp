@@ -111,4 +111,9 @@ namespace Data
 		else
 			m_activePointIndices.removeOne(point.GetPointIndex());
 	}
+
+	Video& Document::GetVideo()
+	{
+		return m_video;
+	}
 }

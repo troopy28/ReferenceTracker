@@ -48,8 +48,9 @@ namespace Data
 		_NODISCARD const QVector<TrackedPoint>& GetTrackedPoints() const;
 		_NODISCARD const TrailLength& GetTrailLength() const;
 		_NODISCARD const QVector<int>& GetActivePointIndices() const;
-
 		void SetActive(const TrackedPoint& point, bool active = true);
+
+		Video& GetVideo();
 	private:
 		/**
 		 * \brief Stores the path to the file used to save the current

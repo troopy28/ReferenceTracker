@@ -16,16 +16,22 @@ namespace Data
 		Q_DISABLE_COPY(Video);
 		Video(Video&& other) noexcept;
 		Video& operator=(Video&& other) noexcept;
-
-		void LoadVideo(const QString& path);
-		void ReadNextFrame();
-		void ReadFrameAtIndex(const int& index);
-
+		
 		_NODISCARD const cv::Mat& GetCurrentImage() const;
 		_NODISCARD int GetCurrentFrameIndex() const;
 		_NODISCARD int GetWidth() const;
 		_NODISCARD int GetHeigth() const;
 		_NODISCARD int GetFrameRate() const;
+		_NODISCARD int GetFrameCount() const;
+
+		void LoadFromFile(const QString& path);
+		void ReadFrameAtIndex(const int& index);
+
+	public slots:
+		void ReadNextFrame();
+
+	signals:
+		void FrameChanged(int frameIndex);
 
 	private:
 		QString m_filePath;

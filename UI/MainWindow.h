@@ -5,6 +5,7 @@
 
 #include "TypeSafeSettings.h"
 #include "VideoPlayer.h"
+#include "../Data/Document.h"
 
 namespace Ui {
 	class MainWindow;
@@ -23,9 +24,14 @@ public:
 
 
 private:
+	// UI initialization.
 	void ManualUiSetup();
 	void ApplyUiSettings();
 
+	// Menu bar callbacks.
+	void OpenVideoMenuItemClicked();
+
+	Data::Document m_document;
 	TypeSafeSettings m_typeSafeSettings;
 	Ui::MainWindow* ui;
 	VideoPlayer m_videoPlayer;

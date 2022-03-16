@@ -4,16 +4,21 @@
 #include <QListView>
 #include <QTextEdit>
 #include <QResizeEvent>
+#include <QFileDialog>
+#include <QMessageBox>
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
+	m_document(),
 	m_typeSafeSettings(),
 	ui(new Ui::MainWindow),
-	m_videoPlayer(this)
+	m_videoPlayer(m_document.GetVideo(), this)
 {
 	ui->setupUi(this);
 	ManualUiSetup();
 	ApplyUiSettings();
+
+	connect(ui->actionOpen_Video, &QAction::triggered, this, &MainWindow::OpenVideoMenuItemClicked);
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
@@ -50,6 +55,22 @@ void MainWindow::ApplyUiSettings()
 {
 	resize(m_typeSafeSettings.GetMinimizedWidth(), m_typeSafeSettings.GetMinimizedHeight());
 }
+
+#pragma region Menu bar callbacks
+
+void MainWindow::OpenVideoMenuItemClicked()
+{
+	const QString fileName = QFileDialog::getOpenFileName(
+		this, "Save As", "", tr("Video file (*.mp4 *.avi)"));
+
+	if (fileName.isEmpty())
+		QMessageBox::warning(this, "Incorrect file path.", fileName);
+	else
+		m_document.GetVideo().LoadFromFile(fileName);
+}
+
+
+#pragma endregion
 
 MainWindow::~MainWindow()
 {

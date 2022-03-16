@@ -14,6 +14,7 @@ namespace Data
 		m_height(0),
 		m_capture()
 	{
+		m_frameMat.setTo(cv::Scalar(0.0, 0.0, 0.0));
 	}
 
 	Video::Video(Video&& other) noexcept :
@@ -41,7 +42,7 @@ namespace Data
 		return *this;
 	}
 
-	void Video::LoadVideo(const QString& path)
+	void Video::LoadFromFile(const QString& path)
 	{
 		// 1. Before changing anything, ensure the file at the specified path exists.
 		if (!QFile::exists(path))
@@ -60,6 +61,7 @@ namespace Data
 		m_height = 0;
 		if (m_capture.isOpened())
 			m_capture.release();
+		m_frameMat.setTo(cv::Scalar(0.0, 0.0, 0.0));
 
 		// 3. Load the video.
 		m_capture.open(path.toStdString());
@@ -74,6 +76,9 @@ namespace Data
 		{
 			qWarning() << "Could not load the video at" << path << "(but the file does exist -- make sure it is a video).";
 		}
+
+		// 4. Load the first frame of the video.
+		ReadNextFrame();
 	}
 
 	void Video::ReadNextFrame()
@@ -88,12 +93,14 @@ namespace Data
 		// Read the next frame and increment the counter.
 		m_capture >> m_frameMat;
 		m_currentFrameIndex++;
+
+		emit FrameChanged(m_currentFrameIndex);
 	}
 
 	void Video::ReadFrameAtIndex(const int& index)
 	{
 		// 1. Clamp the index.
-		const int clampedIndex = std::clamp(index, 0, m_frameCount);
+		const int clampedIndex = std::clamp(index, 1, m_frameCount);
 
 		// 2. Special cases: clampedIndex is current +1, or clampedIndex is current.
 		if (clampedIndex == m_currentFrameIndex)
@@ -108,7 +115,9 @@ namespace Data
 		else
 		{
 			m_capture.set(cv::CAP_PROP_POS_FRAMES, clampedIndex);
+			m_capture >> m_frameMat;
 			m_currentFrameIndex = clampedIndex;
+			emit FrameChanged(m_currentFrameIndex);
 		}
 	}
 
@@ -135,5 +144,10 @@ namespace Data
 	int Video::GetFrameRate() const
 	{
 		return m_frameRate;
+	}
+
+	int Video::GetFrameCount() const
+	{
+		return m_frameCount;
 	}
 }
