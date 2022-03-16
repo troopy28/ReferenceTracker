@@ -89,6 +89,7 @@ void MainWindow::OpenVideo(const QString& path)
 		if (m_document.GetVideo().LoadFromFile(path))
 		{
 			m_typeSafeSettings.AddRecentVideo(path);
+			GenerateRecentVideosMenu();
 		}
 		else
 		{

@@ -1,8 +1,10 @@
 #include "TypeSafeSettings.h"
+#include <QFile>
 
 TypeSafeSettings::TypeSafeSettings() :
 	m_settings("maxime_casas", "reference_tracker")
 {
+	EnsureRecentVideosExist();
 }
 
 void TypeSafeSettings::SetMinimizedWidth(const int minimizedWidth)
@@ -47,4 +49,15 @@ void TypeSafeSettings::AddRecentVideo(const QString& path)
 QStringList TypeSafeSettings::GetRecentVideos() const
 {
 	return m_settings.value(RECENT_VIDEOS, QStringList()).toStringList();
+}
+
+void TypeSafeSettings::EnsureRecentVideosExist()
+{
+	QStringList recentVids = GetRecentVideos();
+	for(const QString& path : recentVids)
+	{
+		if (!QFile::exists(path))
+			recentVids.removeAll(path);
+	}
+	m_settings.setValue(RECENT_VIDEOS, recentVids);
 }

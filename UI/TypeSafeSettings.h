@@ -20,6 +20,8 @@ public:
 	_NODISCARD QStringList GetRecentVideos() const;
 
 private:
+	void EnsureRecentVideosExist();
+
 	static const inline QString MINIMZED_WIDTH = "MINIMZED_WIDTH";
 	static const inline QString MINIMZED_HEIGHT = "MINIMZED_HEIGHT";
 	static const inline QString IS_MAXIMIZED = "IS_MAXIMIZED";
