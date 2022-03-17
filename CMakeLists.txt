@@ -24,8 +24,6 @@ find_package(OpenCV REQUIRED)
 
 INCLUDE_DIRECTORIES( ${OpenCV_INCLUDE_DIRS} )
 
-qt5_add_resources(SOURCES )
-
 add_executable (ReferenceTracker
     # Les ressources.
     "resources.qrc"
@@ -44,6 +42,9 @@ add_executable (ReferenceTracker
     "UI/TypeSafeSettings.h"
     "UI/TypeSafeSettings.cpp"
 
+    "UI/ScrollableGraphicsView.h"
+    "UI/ScrollableGraphicsView.cpp"
+
     "UI/VideoPlayer.ui"
     "UI/VideoPlayer.cpp"
     "UI/VideoPlayer.h"
@@ -53,7 +54,7 @@ add_executable (ReferenceTracker
     "UI/MainWindow.h"
 
     # Le fichier de démarrage.
-    "main.cpp")
+    "main.cpp" )
 
 target_link_libraries(ReferenceTracker Qt5::Widgets Qt5::Multimedia Qt5::3DCore)
 target_link_libraries(ReferenceTracker ${OpenCV_LIBS})

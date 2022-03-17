@@ -123,7 +123,8 @@ void VideoPlayer::CenterVideo()
 	const int yCenter = controlHeight / 2 - height / 2;
 	m_pixmapDisplayer.setPos(xCenter, yCenter);
 
-	ui->graphicsView->setSceneRect(0, 0, ui->graphicsView->width(), ui->graphicsView->height());
+	ui->graphicsView->setSceneRect(0, 0, controlWidth, controlHeight);
+	ui->graphicsView->scene()->addRect(0, 0, controlWidth, controlHeight, QPen(Qt::red));
 }
 
 

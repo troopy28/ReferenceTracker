@@ -167,7 +167,7 @@
     </widget>
    </item>
    <item row="0" column="0">
-    <widget class="QGraphicsView" name="graphicsView">
+    <widget class="ScrollableGraphicsView" name="graphicsView">
      <property name="renderHints">
       <set>QPainter::TextAntialiasing</set>
      </property>
@@ -175,6 +175,13 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>ScrollableGraphicsView</class>
+   <extends>QGraphicsView</extends>
+   <header>ScrollableGraphicsView.h</header>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>
