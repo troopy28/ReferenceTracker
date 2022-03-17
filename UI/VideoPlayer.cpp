@@ -20,7 +20,6 @@ VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
 	//ui->firstFrameBtn->setFixedSize(100, 100);
 	ui->firstFrameBtn->setIcon(QIcon(QPixmap(":/Resources/first_frame.png")));
 	ui->previousFrameBtn->setIcon(QIcon(QPixmap(":/Resources/previous_frame.png")));
-	ui->pauseBtn->setIcon(QIcon(QPixmap(":/Resources/pause.png")));
 	ui->playBtn->setIcon(QIcon(QPixmap(":/Resources/play.png")));
 	ui->nextFrameBtn->setIcon(QIcon(QPixmap(":/Resources/next_frame.png")));
 	ui->lastFrameBtn->setIcon(QIcon(QPixmap(":/Resources/last_frame.png")));
@@ -28,8 +27,7 @@ VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
 
 
 	// Connect the UI buttons.
-	connect(ui->playBtn, &QToolButton::clicked, this, &VideoPlayer::Play);
-	connect(ui->pauseBtn, &QToolButton::clicked, this, &VideoPlayer::Pause);
+	connect(ui->playBtn, &QToolButton::clicked, this, &VideoPlayer::PlayBtnClicked);
 	connect(ui->nextFrameBtn, &QToolButton::clicked, this, &VideoPlayer::GoToNextFrame);
 	connect(ui->previousFrameBtn, &QToolButton::clicked, this, &VideoPlayer::GoToPreviousFrame);
 	connect(ui->firstFrameBtn, &QToolButton::clicked, this, &VideoPlayer::GoToFirstFrame);
@@ -50,10 +48,19 @@ VideoPlayer::~VideoPlayer()
 	delete ui;
 }
 
+void VideoPlayer::PlayBtnClicked()
+{
+	if(m_timer.isActive())
+		Pause();
+	else
+		Play();
+}
+
 void VideoPlayer::Play()
 {
 	const int interval = static_cast<int>(1000.0f / static_cast<float>(m_video.GetFrameRate()));
 	m_timer.start(interval);
+	ui->playBtn->setIcon(QIcon(QPixmap(":/Resources/pause.png")));
 }
 
 void VideoPlayer::TimerTick()
@@ -71,6 +78,7 @@ void VideoPlayer::TimerTick()
 void VideoPlayer::Pause()
 {
 	m_timer.stop();
+	ui->playBtn->setIcon(QIcon(QPixmap(":/Resources/play.png")));
 }
 
 void VideoPlayer::GoToNextFrame()
@@ -102,7 +110,6 @@ void VideoPlayer::OnVideoLoaded()
 	// 1. Enable the player's UI.
 	ui->firstFrameBtn->setEnabled(true);
 	ui->previousFrameBtn->setEnabled(true);
-	ui->pauseBtn->setEnabled(true);
 	ui->playBtn->setEnabled(true);
 	ui->nextFrameBtn->setEnabled(true);
 	ui->lastFrameBtn->setEnabled(true);
@@ -148,3 +155,4 @@ void VideoPlayer::resizeEvent(QResizeEvent* event)
 
 	CenterVideo();
 }
+

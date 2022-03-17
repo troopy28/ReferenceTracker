@@ -24,9 +24,10 @@ public:
 	void resizeEvent(QResizeEvent* event) override;
 
 private:
+	void PlayBtnClicked();
 	void Play();
-	void TimerTick();
 	void Pause();
+	void TimerTick();
 	void GoToNextFrame();
 	void GoToPreviousFrame();
 	void GoToFirstFrame();
