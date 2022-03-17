@@ -8,6 +8,8 @@ ScrollableGraphicsView::ScrollableGraphicsView(QWidget* parent) :
 	m_scheduledScalings(0),
 	m_currentScaleFactor(1.0)
 {
+	setTransformationAnchor(AnchorUnderMouse);
+	setDragMode(QGraphicsView::RubberBandDrag);
 }
 
 void ScrollableGraphicsView::wheelEvent(QWheelEvent* evt)
@@ -27,6 +29,49 @@ void ScrollableGraphicsView::wheelEvent(QWheelEvent* evt)
 	anim->start();
 
 	evt->accept();
+}
+
+void ScrollableGraphicsView::mousePressEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::MiddleButton)
+	{
+		// If there's a rubber band already started it doesn't autmatically get cleared when we switch to
+		// scroll hand mode. We should probably keep track of things properly but it seems to work if you just do this.
+		// I'm not sure why buttons has to be 0 here - if you just clear the left button it doesn't work.
+		QMouseEvent releaseEvent(QEvent::MouseButtonRelease, event->localPos(), event->screenPos(), event->windowPos(),
+			Qt::LeftButton, 0, event->modifiers());
+		QGraphicsView::mouseReleaseEvent(&releaseEvent);
+
+		setDragMode(QGraphicsView::ScrollHandDrag);
+		// We need to pretend it is actually the left button that was pressed!
+		QMouseEvent fakeEvent(event->type(), event->localPos(), event->screenPos(), event->windowPos(),
+			Qt::LeftButton, event->buttons() | Qt::LeftButton, event->modifiers());
+		QGraphicsView::mousePressEvent(&fakeEvent);
+	}
+	else
+	{
+		QGraphicsView::mousePressEvent(event);
+	}
+}
+
+void ScrollableGraphicsView::mouseMoveEvent(QMouseEvent* event)
+{
+	QGraphicsView::mouseMoveEvent(event);
+}
+
+void ScrollableGraphicsView::mouseReleaseEvent(QMouseEvent* event)
+{
+	if (event->button() == Qt::MiddleButton)
+	{
+		QMouseEvent fakeEvent(event->type(), event->localPos(), event->screenPos(), event->windowPos(),
+			Qt::LeftButton, event->buttons() & ~Qt::LeftButton, event->modifiers());
+		QGraphicsView::mouseReleaseEvent(&fakeEvent);
+		setDragMode(QGraphicsView::RubberBandDrag);
+	}
+	else
+	{
+		QGraphicsView::mouseReleaseEvent(event);
+	}
 }
 
 void ScrollableGraphicsView::ScalingTime(double x)

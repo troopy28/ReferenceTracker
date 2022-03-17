@@ -15,6 +15,9 @@ public slots:
 
 protected:
 	void wheelEvent(QWheelEvent* evt) override;
+	void mousePressEvent(QMouseEvent* event) override;
+	void mouseMoveEvent(QMouseEvent* event) override;
+	void mouseReleaseEvent(QMouseEvent* event) override;
 
 private:
 	int m_scheduledScalings;

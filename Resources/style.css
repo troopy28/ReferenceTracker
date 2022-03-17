@@ -5,7 +5,7 @@ QToolButton {
 }
 
 QToolButton:hover {
-    background-color: rgb(59, 59, 59);
+    background-color: rgb(69, 69, 69);
     border-style: outset;
     border-width: 0;
 }
@@ -52,4 +52,53 @@ QSplitter::handle:horizontal {
 
 QSplitter::handle:vertical {
     height: 5px;
+}
+
+
+/* Scrollbars. */
+
+
+QScrollBar:horizontal {
+    background: rgb(42, 42, 42);
+    height: 20px;
+}
+
+QScrollBar:vertical {
+    background: rgb(42, 42, 42);
+    width: 20px;
+}
+
+
+QScrollBar::handle:horizontal, QScrollBar::handle:vertical {
+    background: rgb(59, 59, 59);
+    margin: 0 0 0 0;
+}
+
+QScrollBar::handle:horizontal:hover, QScrollBar::handle:vertical:hover {
+    background: rgb(69, 69, 69);
+}
+
+
+/* This is the background color at the left and at the right of the handle. */
+QScrollBar::add-page:horizontal, QScrollBar::sub-page:horizontal, QScrollBar::add-page:vertical, QScrollBar::sub-page:vertical {
+    background: none;
+}
+
+QScrollBar:left-arrow:horizontal, QScrollBar::right-arrow:horizontal, QScrollBar:left-arrow:vertical, QScrollBar::right-arrow:vertical {
+    border-width: 0;
+    border-style: outset;
+    width: 5px;
+    height: 5px;
+    background: rgb(42, 42, 42);
+}
+
+/* Hide the scrollbar buttons. */
+QScrollBar::add-line:horizontal, QScrollBar::add-line:vertical {
+    border: none;
+    background: none;
+}
+
+QScrollBar::sub-line:horizontal, QScrollBar::sub-line:vertical {
+    border: none;
+    background: none;
 }
