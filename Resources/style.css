@@ -39,7 +39,7 @@ QStatusBar {
 }
 
 
-/* QSplitter. */
+/*** QSplitter. ***/
 
 
 QSplitter::handle {
@@ -55,7 +55,7 @@ QSplitter::handle:vertical {
 }
 
 
-/* Scrollbars. */
+/*** Scrollbars. ***/
 
 
 QScrollBar:horizontal {
