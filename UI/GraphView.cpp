@@ -1,14 +1,19 @@
 #include "GraphView.h"
 
+#include <QFile>
 #include <QPainter>
 #include <QPainterPath>
 #include <QTime>
 
 GraphView::GraphView(Data::Document& document, QWidget* parent) :
 	QWidget(parent),
-	m_document(document)
+	m_document(document),
+	m_headerPixmap(width(), height()),
+	m_curvesPixmap(),
+	m_requireRedraw(true)
 {
 	connect(&m_document.GetVideo(), &Data::Video::FrameChanged, this, &GraphView::MovePlayhead);
+	connect(&m_document.GetVideo(), &Data::Video::VideoLoaded, this, &GraphView::ForceRedraw);
 }
 
 void GraphView::paintEvent(QPaintEvent* event)
@@ -20,9 +25,16 @@ void GraphView::paintEvent(QPaintEvent* event)
 	DrawCurves(painter);
 	DrawPlayhead(painter);
 
+	m_requireRedraw = false;
 	// painter.setPen(Qt::NoPen);
 	// painter.setBrush(QBrush(Qt::red));
 	// painter.drawLine(QLineF(10, 0, 10, 100));
+}
+
+void GraphView::resizeEvent(QResizeEvent* event)
+{
+	QWidget::resizeEvent(event);
+	ForceRedraw();
 }
 
 void GraphView::MovePlayhead(int target)
@@ -31,7 +43,13 @@ void GraphView::MovePlayhead(int target)
 	// todo: smooth transition from the current frame to the target frame. but later.
 }
 
-void GraphView::DrawHeader(QPainter& painter) const
+void GraphView::ForceRedraw()
+{
+	m_requireRedraw = true;
+	repaint();
+}
+
+void GraphView::DrawHeader(QPainter& widgetPainter)
 {
 	static constexpr int headerHeight = 41;
 	static constexpr int graduationsHeight = 15;
@@ -42,20 +60,28 @@ void GraphView::DrawHeader(QPainter& painter) const
 	static constexpr QColor normal(42, 42, 42);
 	static constexpr QColor light(64, 64, 64);
 
-	painter.save();
+	if(!m_requireRedraw)
+	{
+		widgetPainter.drawPixmap(0, 0, width(), height(), m_headerPixmap);
+		return;
+	}
+
+	m_headerPixmap = m_headerPixmap.scaled(width(), height());
+	m_headerPixmap.fill(Qt::transparent);
+	QPainter pixmapPainter(&m_headerPixmap);
 
 	QBrush brush;
 	brush.setColor(normal);
 	brush.setStyle(Qt::SolidPattern);
-	painter.setBrush(brush); // Brush is used to fill shapes.
+	pixmapPainter.setBrush(brush); // Brush is used to fill shapes.
 
 	// 1. Draw the darker border.
-	painter.setPen(QPen(dark, 1));
-	painter.drawLine(0, headerHeight, width(), headerHeight);
+	pixmapPainter.setPen(QPen(dark, 1));
+	pixmapPainter.drawLine(0, headerHeight, width(), headerHeight);
 
 	// 2. Draw the graduations.
 	const Data::Video& video = m_document.GetVideo();
-	painter.setPen(light);
+	pixmapPainter.setPen(light);
 
 	int lastTextDrawX = -1000;
 	int lastDrawnMinigraduation = -1000;
@@ -69,7 +95,7 @@ void GraphView::DrawHeader(QPainter& painter) const
 		// Small graduation, in the header.
 		if(xPos - lastDrawnMinigraduation > minimumMinigraduationSeparation)
 		{
-			painter.drawLine(xPos, 0, xPos, (graduationIndex & 1) == 0 ? graduationsHeight : smallGraduationHeight); // x % n^2 <=> x & (n^2 - 1) .... which MSVC apparently doesn't optimize automatically here.
+			pixmapPainter.drawLine(xPos, 0, xPos, (graduationIndex & 1) == 0 ? graduationsHeight : smallGraduationHeight); // x % n^2 <=> x & (n^2 - 1) .... which MSVC apparently doesn't optimize automatically here.
 			lastDrawnMinigraduation = xPos;
 			graduationIndex++;
 		}
@@ -79,22 +105,23 @@ void GraphView::DrawHeader(QPainter& painter) const
 		{
 			const int time = static_cast<int>(static_cast<float>(frame) / static_cast<float>(video.GetFrameRate()));
 			const QString timeStr = QDateTime::fromTime_t(time).toUTC().toString("mm:ss");
-			const QSize textSize = QFontMetrics(painter.font()).size(Qt::TextSingleLine, timeStr);
+			const QSize textSize = QFontMetrics(pixmapPainter.font()).size(Qt::TextSingleLine, timeStr);
 			const int textXpos = xPos - textSize.width() / 2;
 			if(textXpos - lastTextDrawX > minimumTextSeparation)
 			{
-				painter.drawText(textXpos, headerHeight - textSize.height() + 3, timeStr);
+				pixmapPainter.drawText(textXpos, headerHeight - textSize.height() + 3, timeStr);
 				lastTextDrawX = xPos + textSize.width() / 2;
-				painter.drawLine(xPos, headerHeight, xPos, height());
+				pixmapPainter.drawLine(xPos, headerHeight, xPos, height());
 			}
 		}
 	}
 
-	painter.restore();
+	widgetPainter.drawPixmap(0, 0, width(), height(), m_headerPixmap);
 }
 
 void GraphView::DrawCurves(QPainter& painter)
 {
+	// todo
 }
 
 void GraphView::DrawPlayhead(QPainter& painter) const
