@@ -71,6 +71,7 @@ namespace Data
 
 	TrackedPoint& Document::CreateTrackedPoint()
 	{
+		qDebug() << "Document::CreateTrackedPoint()";
 		const int pointIndex = m_trackedPoints.size() + 1;
 		const QString pointName = "Point " + QString::number(pointIndex + 1);
 		m_trackedPoints.push_back(TrackedPoint(pointName, pointIndex));
@@ -80,6 +81,7 @@ namespace Data
 
 	void Document::RemoveTrackedPoint(const int index)
 	{
+		qDebug() << "Document::RemoveTrackedPoint()";
 		m_trackedPoints.removeAt(index);
 		emit TrackedPointRemoved(index);
 	}

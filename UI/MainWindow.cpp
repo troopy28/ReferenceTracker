@@ -25,6 +25,8 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	connect(ui->actionOpen_Video, &QAction::triggered, this, &MainWindow::OpenVideoMenuItemClicked);
 	connect(ui->actionClose, &QAction::triggered, this, &MainWindow::close);
+	connect(ui->actionUndo, &QAction::triggered, &m_undoStack, &QUndoStack::undo);
+	connect(ui->actionRedo, &QAction::triggered, &m_undoStack, &QUndoStack::redo);
 
 	m_videoPlayer->Render(0);
 }

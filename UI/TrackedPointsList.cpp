@@ -17,10 +17,12 @@ TrackedPointsList::TrackedPointsList(Data::Document& document, QUndoStack& undoS
 	m_document(document),
 	m_undoStack(undoStack),
 	m_pointsListLayout(nullptr),
-	m_listSpacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding))
+	m_listSpacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)),
+	m_pointDisplayers()
 {
 	SetupLayout();
 	connect(&m_document, &Data::Document::TrackedPointAdded, this, &TrackedPointsList::AddTrackedPoint);
+	connect(&m_document, &Data::Document::TrackedPointRemoved, this, &TrackedPointsList::RemoveTrackedPoint);
 }
 
 void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
@@ -96,6 +98,16 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	m_pointsListLayout->removeItem(m_listSpacer);
 	m_pointsListLayout->addWidget(pointListItemWidget);
 	m_pointsListLayout->addItem(m_listSpacer);
+
+	// 7. Add the widget in the displayers list.
+	m_pointDisplayers.push_back(pointListItemWidget);
+}
+
+void TrackedPointsList::RemoveTrackedPoint(const int pointIndex)
+{
+	m_pointsListLayout->removeWidget(m_pointDisplayers[pointIndex]);
+	delete m_pointDisplayers[pointIndex];
+	m_pointDisplayers.removeAt(pointIndex);
 }
 
 void TrackedPointsList::SetupLayout()

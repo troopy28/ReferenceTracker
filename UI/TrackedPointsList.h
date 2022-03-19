@@ -19,6 +19,8 @@ public:
 	 */
 	void AddTrackedPoint(Data::TrackedPoint& point);
 
+	void RemoveTrackedPoint(int pointIndex);
+
 public slots:
 
 
@@ -29,4 +31,5 @@ private:
 	QUndoStack& m_undoStack;
 	QVBoxLayout* m_pointsListLayout;
 	QSpacerItem* m_listSpacer;
+	QVector<QWidget*> m_pointDisplayers;
 };
