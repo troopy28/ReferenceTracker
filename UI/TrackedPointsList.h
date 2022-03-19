@@ -6,13 +6,13 @@
 #include <QSplitter>
 #include <QVBoxLayout>
 
-class GraphView : public QWidget
+class TrackedPointsList : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit GraphView(Data::Document& document, QWidget* parent = nullptr);
-	~GraphView() override;
+	explicit TrackedPointsList(Data::Document& document, QWidget* parent = nullptr);
+	~TrackedPointsList() override;
 
 	/**
 	 * \brief Setup the widget managing this tracked point in the list
@@ -25,7 +25,7 @@ public slots:
 
 
 private:
-	void SetupPointsListWidget(QSplitter* splitter);
+	void SetupLayout();
 
 	Data::Document& m_document;
 	QVBoxLayout* m_pointsListLayout;

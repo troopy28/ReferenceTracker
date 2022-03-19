@@ -1,4 +1,4 @@
-#include "GraphView.h"
+#include "TrackedPointsList.h"
 
 #include <QColorDialog>
 #include <qlayout.h>
@@ -14,38 +14,21 @@
 #include "ClickableLabel.h"
 #include "ScrollableGraphicsView.h"
 
-GraphView::GraphView(Data::Document& document, QWidget* parent) :
+TrackedPointsList::TrackedPointsList(Data::Document& document, QWidget* parent) :
 	QWidget(parent),
 	m_document(document),
 	m_pointsListLayout(nullptr),
 	m_listSpacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding))
 {
-	// Setup the splitter.
-	QSplitter* splitter = new QSplitter(this);
-	splitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-
-	// Setup the left part (points list).
-	SetupPointsListWidget(splitter);
-	QTextEdit* textedit = new QTextEdit(this);
-	textedit->setPlainText("abc");
-
-	// Setup the right part (curves viewer / timeline).
-	splitter->addWidget(textedit); // todo: change this
-	splitter->setStretchFactor(1, 3);
-
-	// Global layout of the control. Contains everything.
-	QStackedLayout* layout = new QStackedLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0);
-	layout->addWidget(splitter);
-	setLayout(layout);
+	SetupLayout();
 }
 
-GraphView::~GraphView()
+TrackedPointsList::~TrackedPointsList()
 {
-	qDebug() << "GraphView::~GraphView";
+	qDebug() << "TrackedPointsList::~TrackedPointsList";
 }
 
-void GraphView::AddTrackedPoint(Data::TrackedPoint& point)
+void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 {
 	constexpr static int colorSquareSize = 16;
 	// 1. Create the widget.
@@ -120,17 +103,16 @@ void GraphView::AddTrackedPoint(Data::TrackedPoint& point)
 	m_pointsListLayout->addItem(m_listSpacer);
 }
 
-void GraphView::SetupPointsListWidget(QSplitter* splitter)
+void TrackedPointsList::SetupLayout()
 {
 	// 1. Setup the list in itself.
-	QWidget* globalListWidget = new QWidget(this);
-	globalListWidget->setMinimumWidth(250);
+	setMinimumWidth(250);
 
-	QScrollArea* scrollArea = new QScrollArea(globalListWidget);
+	QScrollArea* scrollArea = new QScrollArea(this);
 	scrollArea->setWidgetResizable(true);
 	scrollArea->setContentsMargins(0, 0, 0, 0);
 
-	QWidget* scrollAreaWidget = new QWidget(globalListWidget);
+	QWidget* scrollAreaWidget = new QWidget(this);
 	scrollAreaWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::MinimumExpanding);
 	scrollAreaWidget->setContentsMargins(0, 0, 0, 0);
 	m_pointsListLayout = new QVBoxLayout(scrollAreaWidget);
@@ -158,19 +140,16 @@ void GraphView::SetupPointsListWidget(QSplitter* splitter)
 	scrollAreaWidget->layout()->addItem(m_listSpacer);
 
 	// 2. Setup the button to add a point.
-	QWidget* bottomBar = new QWidget(globalListWidget);
+	QWidget* bottomBar = new QWidget(this);
 	QHBoxLayout* bottomBarLayout = new QHBoxLayout(bottomBar);
 	bottomBarLayout->setContentsMargins(0, 0, 0, 0);
 	bottomBar->setLayout(bottomBarLayout);
-	QPushButton* addPointBtn = new QPushButton("Add Point", globalListWidget);
+	QPushButton* addPointBtn = new QPushButton("Add Point", this);
 	bottomBarLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 	bottomBarLayout->addWidget(addPointBtn);
 
 	QVBoxLayout* globalListWidgetLayout = new QVBoxLayout();
-	globalListWidget->setLayout(globalListWidgetLayout);
+	setLayout(globalListWidgetLayout);
 	globalListWidgetLayout->addWidget(scrollArea);
 	globalListWidgetLayout->addWidget(bottomBar);
-
-	// Finally: add the widget to the splitter.
-	splitter->addWidget(globalListWidget);
 }

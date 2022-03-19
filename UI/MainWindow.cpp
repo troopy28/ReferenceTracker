@@ -7,6 +7,8 @@
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QDebug>
+#include <QStackedLayout>
+#include <QTextEdit>
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
@@ -14,7 +16,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	m_typeSafeSettings(),
 	ui(new Ui::MainWindow),
 	m_videoPlayer(new VideoPlayer(m_document.GetVideo())),
-	m_graphView(new GraphView(m_document))
+	m_graphView(new TrackedPointsList(m_document))
 {
 	ui->setupUi(this);
 	ManualUiSetup();
@@ -51,8 +53,26 @@ void MainWindow::ManualUiSetup()
 	globalVerticalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	globalVerticalSplitter->addWidget(m_videoPlayer);
-	globalVerticalSplitter->addWidget(m_graphView);
 
+	QSplitter* bottomSplitter = new QSplitter(this);
+	bottomSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+	// Setup the left part (points list).
+	bottomSplitter->addWidget(m_graphView);
+	QTextEdit* textedit = new QTextEdit(this);
+	textedit->setPlainText("abc");
+
+	// Setup the right part (curves viewer / timeline).
+	bottomSplitter->addWidget(textedit); // todo: change this
+	bottomSplitter->setStretchFactor(1, 3);
+
+	// Global layout of the bottom control
+	QStackedLayout* layout = new QStackedLayout(this);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->addWidget(bottomSplitter);
+	setLayout(layout);
+
+	globalVerticalSplitter->addWidget(bottomSplitter);
 	setCentralWidget(globalVerticalSplitter);
 
 	// Dynamic menus setup.
