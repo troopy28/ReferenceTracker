@@ -2,6 +2,7 @@
 
 #include <QPainter>
 #include <QPainterPath>
+#include <QTime>
 
 GraphView::GraphView(Data::Document& document, QWidget* parent) :
 	QWidget(parent),
@@ -47,18 +48,30 @@ void GraphView::DrawHeader(QPainter& painter) const
 	painter.setBrush(brush); // Brush is used to fill shapes.
 
 	// 1. Draw the darker border.
-	painter.setPen(dark);
+	painter.setPen(QPen(dark, 1));
 	painter.drawLine(0, headerHeight, width(), headerHeight);
 
-	// 2. Draw the little graduations.
+	// 2. Draw the graduations.
 	const Data::Video& video = m_document.GetVideo();
 	painter.setPen(light);
-	for(int frame = 0; frame < video.GetFrameCount(); frame++)
+	for (int frame = 0; frame < video.GetFrameCount(); frame++)
 	{
 		const int xPos = frameToControlPos(frame);
 		if (xPos > width()) // Stop drawing when getting out of the control.
 			break;
-		painter.drawLine(xPos, 0, xPos, frame % 2 == 0 ? graduationsHeight : smallGraduationHeight);
+
+		// Small graduation, in the header.
+		painter.drawLine(xPos, 0, xPos, (frame & 1) == 0 ? graduationsHeight : smallGraduationHeight); // x % n^2 <=> x & (n^2 - 1) .... which MSVC apparently doesn't optimize automatically here.
+
+		// Big graduation every second. Display the time too.
+		if (frame % 24 == 0) // todo: make this 24 a parameter.
+		{
+			const int time = static_cast<int>(static_cast<float>(frame) / static_cast<float>(video.GetFrameRate()));
+			const QString timeStr = QDateTime::fromTime_t(time).toUTC().toString("mm:ss");
+			const QSize textSize = QFontMetrics(painter.font()).size(Qt::TextSingleLine, timeStr);
+			painter.drawText(xPos - textSize.width() / 2, headerHeight - textSize.height() + 3, timeStr);
+			painter.drawLine(xPos, headerHeight, xPos, height());
+		}
 	}
 
 	painter.restore();
@@ -94,7 +107,7 @@ void GraphView::DrawPlayhead(QPainter& painter) const
 		<< QPoint(-halfWidth, h);
 	path.addPolygon(poly);
 
-	
+
 	painter.setBrush(brush); // Brush is used to fill shapes.
 	painter.setPen(playheadColor); // Pen is used to draw lines.
 	painter.translate(position, 0);

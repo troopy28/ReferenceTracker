@@ -18,7 +18,7 @@ protected:
 private:
 	void MovePlayhead(int target);
 
-	void DrawHeader(QPainter& painter);
+	void DrawHeader(QPainter& painter) const;
 	void DrawCurves(QPainter& painter);
 	void DrawPlayhead(QPainter& painter) const;
 
