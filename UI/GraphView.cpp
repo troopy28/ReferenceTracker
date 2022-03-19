@@ -36,6 +36,8 @@ void GraphView::DrawHeader(QPainter& painter) const
 	static constexpr int headerHeight = 41;
 	static constexpr int graduationsHeight = 15;
 	static constexpr int smallGraduationHeight = graduationsHeight / 2;
+	static constexpr int minimumMinigraduationSeparation = 3;
+	static constexpr int minimumTextSeparation = 50;
 	static constexpr QColor dark(35, 35, 35);
 	static constexpr QColor normal(42, 42, 42);
 	static constexpr QColor light(64, 64, 64);
@@ -54,6 +56,10 @@ void GraphView::DrawHeader(QPainter& painter) const
 	// 2. Draw the graduations.
 	const Data::Video& video = m_document.GetVideo();
 	painter.setPen(light);
+
+	int lastTextDrawX = -1000;
+	int lastDrawnMinigraduation = -1000;
+	int graduationIndex = 0;
 	for (int frame = 0; frame < video.GetFrameCount(); frame++)
 	{
 		const int xPos = frameToControlPos(frame);
@@ -61,7 +67,12 @@ void GraphView::DrawHeader(QPainter& painter) const
 			break;
 
 		// Small graduation, in the header.
-		painter.drawLine(xPos, 0, xPos, (frame & 1) == 0 ? graduationsHeight : smallGraduationHeight); // x % n^2 <=> x & (n^2 - 1) .... which MSVC apparently doesn't optimize automatically here.
+		if(xPos - lastDrawnMinigraduation > minimumMinigraduationSeparation)
+		{
+			painter.drawLine(xPos, 0, xPos, (graduationIndex & 1) == 0 ? graduationsHeight : smallGraduationHeight); // x % n^2 <=> x & (n^2 - 1) .... which MSVC apparently doesn't optimize automatically here.
+			lastDrawnMinigraduation = xPos;
+			graduationIndex++;
+		}
 
 		// Big graduation every second. Display the time too.
 		if (frame % 24 == 0) // todo: make this 24 a parameter.
@@ -69,8 +80,13 @@ void GraphView::DrawHeader(QPainter& painter) const
 			const int time = static_cast<int>(static_cast<float>(frame) / static_cast<float>(video.GetFrameRate()));
 			const QString timeStr = QDateTime::fromTime_t(time).toUTC().toString("mm:ss");
 			const QSize textSize = QFontMetrics(painter.font()).size(Qt::TextSingleLine, timeStr);
-			painter.drawText(xPos - textSize.width() / 2, headerHeight - textSize.height() + 3, timeStr);
-			painter.drawLine(xPos, headerHeight, xPos, height());
+			const int textXpos = xPos - textSize.width() / 2;
+			if(textXpos - lastTextDrawX > minimumTextSeparation)
+			{
+				painter.drawText(textXpos, headerHeight - textSize.height() + 3, timeStr);
+				lastTextDrawX = xPos + textSize.width() / 2;
+				painter.drawLine(xPos, headerHeight, xPos, height());
+			}
 		}
 	}
 
