@@ -151,4 +151,9 @@ namespace Data
 	{
 		return m_frameCount;
 	}
+
+	bool Video::IsLoaded() const
+	{
+		return m_frameCount != 0;
+	}
 }

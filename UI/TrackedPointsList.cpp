@@ -1,11 +1,9 @@
 #include "TrackedPointsList.h"
 
-#include <QColorDialog>
-#include <qlayout.h>
+#include <QLayout>
 #include <QPushButton>
 #include <QSplitter>
 #include <QTextEdit>
-#include <QStackedLayout>
 #include <QDebug>
 #include <QLineEdit>
 #include <QColorDialog>
@@ -21,11 +19,6 @@ TrackedPointsList::TrackedPointsList(Data::Document& document, QWidget* parent) 
 	m_listSpacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding))
 {
 	SetupLayout();
-}
-
-TrackedPointsList::~TrackedPointsList()
-{
-	qDebug() << "TrackedPointsList::~TrackedPointsList";
 }
 
 void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)

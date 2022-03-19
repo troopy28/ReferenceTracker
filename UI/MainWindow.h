@@ -7,6 +7,7 @@
 #include "../Data/Document.h"
 #include "VideoPlayer.h"
 #include "TrackedPointsList.h"
+#include "GraphView.h"
 
 namespace Ui {
 	class MainWindow;
@@ -41,7 +42,8 @@ private:
 	TypeSafeSettings m_typeSafeSettings;
 	Ui::MainWindow* ui;
 	VideoPlayer* m_videoPlayer;
-	TrackedPointsList* m_graphView;
+	TrackedPointsList* m_trackedPointsList;
+	GraphView* m_graphView;
 };
 
 #endif // MAINWINDOW_H

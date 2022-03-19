@@ -8,15 +8,15 @@
 #include <QFileInfo>
 #include <QDebug>
 #include <QStackedLayout>
-#include <QTextEdit>
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	m_document(),
 	m_typeSafeSettings(),
 	ui(new Ui::MainWindow),
-	m_videoPlayer(new VideoPlayer(m_document.GetVideo())),
-	m_graphView(new TrackedPointsList(m_document))
+	m_videoPlayer(new VideoPlayer(m_document.GetVideo(), this)),
+	m_trackedPointsList(new TrackedPointsList(m_document, this)),
+	m_graphView(new GraphView(m_document, this))
 {
 	ui->setupUi(this);
 	ManualUiSetup();
@@ -58,12 +58,10 @@ void MainWindow::ManualUiSetup()
 	bottomSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	// Setup the left part (points list).
-	bottomSplitter->addWidget(m_graphView);
-	QTextEdit* textedit = new QTextEdit(this);
-	textedit->setPlainText("abc");
+	bottomSplitter->addWidget(m_trackedPointsList);
 
 	// Setup the right part (curves viewer / timeline).
-	bottomSplitter->addWidget(textedit); // todo: change this
+	bottomSplitter->addWidget(m_graphView);
 	bottomSplitter->setStretchFactor(1, 3);
 
 	// Global layout of the bottom control

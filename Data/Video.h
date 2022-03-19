@@ -23,6 +23,7 @@ namespace Data
 		_NODISCARD int GetHeigth() const;
 		_NODISCARD int GetFrameRate() const;
 		_NODISCARD int GetFrameCount() const;
+		_NODISCARD bool IsLoaded() const;
 
 		bool LoadFromFile(const QString& path);
 		void ReadFrameAtIndex(const int& index);
