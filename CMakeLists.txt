@@ -49,12 +49,15 @@ add_executable (ReferenceTracker
     "UI/VideoPlayer.cpp"
     "UI/VideoPlayer.h"
 
+    "UI/GraphView.h"
+    "UI/GraphView.cpp"
+
     "UI/MainWindow.ui"
     "UI/MainWindow.cpp"
     "UI/MainWindow.h"
 
     # Le fichier de démarrage.
-    "main.cpp" )
+    "main.cpp" "UI/ClickableLabel.h" "UI/ClickableLabel.cpp")
 
 target_link_libraries(ReferenceTracker Qt5::Widgets Qt5::Multimedia Qt5::3DCore)
 target_link_libraries(ReferenceTracker ${OpenCV_LIBS})

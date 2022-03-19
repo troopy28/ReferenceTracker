@@ -3,6 +3,7 @@
 #include <QPixmap>
 #include <QGraphicsRectItem>
 #include <QPen>
+#include <QDebug>
 
 VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
 	QWidget(parent),
@@ -45,6 +46,7 @@ VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
 
 VideoPlayer::~VideoPlayer()
 {
+	qDebug() << "VideoPlayer::~VideoPlayer()";
 	delete ui;
 }
 

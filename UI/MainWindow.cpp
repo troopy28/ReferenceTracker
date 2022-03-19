@@ -1,8 +1,7 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
 #include <QSplitter>
-#include <QListView>
-#include <QTextEdit>
+
 #include <QResizeEvent>
 #include <QFileDialog>
 #include <QMessageBox>
@@ -14,7 +13,8 @@ MainWindow::MainWindow(QWidget* parent) :
 	m_document(),
 	m_typeSafeSettings(),
 	ui(new Ui::MainWindow),
-	m_videoPlayer(m_document.GetVideo(), this)
+	m_videoPlayer(new VideoPlayer(m_document.GetVideo())),
+	m_graphView(new GraphView(m_document))
 {
 	ui->setupUi(this);
 	ManualUiSetup();
@@ -22,7 +22,7 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	connect(ui->actionOpen_Video, &QAction::triggered, this, &MainWindow::OpenVideoMenuItemClicked);
 
-	m_videoPlayer.Render(0);
+	m_videoPlayer->Render(0);
 }
 
 void MainWindow::resizeEvent(QResizeEvent* event)
@@ -49,17 +49,8 @@ void MainWindow::ManualUiSetup()
 	QSplitter* globalVerticalSplitter = new QSplitter(Qt::Vertical, this);
 	globalVerticalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-
-	QListView* listview = new QListView(this);
-	QTextEdit* textedit = new QTextEdit(this);
-	textedit->setPlainText("abc");
-	QSplitter* bottomHorizontalSplitter = new QSplitter(this);
-	bottomHorizontalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-	bottomHorizontalSplitter->addWidget(listview);
-	bottomHorizontalSplitter->addWidget(textedit);
-
-	globalVerticalSplitter->addWidget(&m_videoPlayer);
-	globalVerticalSplitter->addWidget(bottomHorizontalSplitter);
+	globalVerticalSplitter->addWidget(m_videoPlayer);
+	globalVerticalSplitter->addWidget(m_graphView);
 
 	setCentralWidget(globalVerticalSplitter);
 
@@ -116,5 +107,6 @@ void MainWindow::OpenVideo(const QString& path)
 
 MainWindow::~MainWindow()
 {
+	qDebug() << "MainWindow::~MainWindow()",
 	delete ui;
 }

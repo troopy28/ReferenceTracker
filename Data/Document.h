@@ -24,7 +24,7 @@ namespace Data
 	public:
 		Document();
 		~Document() = default;
-		Q_DISABLE_COPY(Document);
+		Q_DISABLE_COPY(Document);  // NOLINT(clang-diagnostic-extra-semi) (because without this extra semicolon, visual studio is dumb and indents the whole file one tab too much on the right).
 		Document(Document&& other) noexcept;
 		Document& operator=(Document&& other) noexcept;
 
@@ -51,6 +51,11 @@ namespace Data
 		void SetActive(const TrackedPoint& point, bool active = true);
 
 		Video& GetVideo();
+
+	signals:
+		void TrackedPointsListChanged(const QVector<TrackedPoint>& newPoints);
+		void TrailLengthChanged(const TrailLength& newLength);
+
 	private:
 		/**
 		 * \brief Stores the path to the file used to save the current

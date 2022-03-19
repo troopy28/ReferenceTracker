@@ -1,14 +1,14 @@
-QToolButton {
+QWidget {
     background-color: rgb(42, 42, 42);
-    border-style: outset;
-    border-width: 0;
+    color: rgb(170, 170, 170);
 }
 
-QToolButton:hover {
-    background-color: rgb(69, 69, 69);
-    border-style: outset;
-    border-width: 0;
+/* Test. */
+QScrollArea {
+    background-color: rgb(200, 20, 20);
 }
+
+
 
 QMainWindow {
     background-color: rgb(42, 42, 42);
@@ -34,8 +34,63 @@ QListView, QTextEdit {
     border-width: 0;
 }
 
+QLineEdit {
+    background-color: rgb(35, 35, 35);
+    /*border-style: outset;*/
+    border-width: 1px;
+}
+
+QLineEdit:hover {
+    background-color: rgb(42, 42, 42);
+    /*border-style: outset;*/
+    border-width: 1px;
+}
+
 QStatusBar {
     background-color: rgb(20, 20, 20);
+}
+
+
+
+/*** QPushButton. ***/
+
+
+QPushButton {
+    background-color: rgb(42, 42, 42);
+    border: 2px solid rgb(69, 69, 69);
+    border-radius: 10px;
+    padding: 3px 20px 3px 20px;
+}
+
+QPushButton:hover {
+    background-color: rgb(64, 64, 64);
+}
+
+QPushButton:pressed {
+    background-color: rgb(85, 85, 85);
+}
+
+
+
+/*** QToolButton. ***/
+
+
+QToolButton {
+    background-color: rgb(42, 42, 42);
+    border-style: outset;
+    border-width: 0;
+}
+
+QToolButton:hover {
+    background-color: rgb(69, 69, 69);
+    border-style: outset;
+    border-width: 0;
+}
+
+QToolButton:pressed {
+    background-color: rgb(85, 85, 85);
+    border-style: outset;
+    border-width: 0;
 }
 
 

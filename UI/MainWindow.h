@@ -4,8 +4,9 @@
 #include <QMainWindow>
 
 #include "TypeSafeSettings.h"
-#include "VideoPlayer.h"
 #include "../Data/Document.h"
+#include "VideoPlayer.h"
+#include "GraphView.h"
 
 namespace Ui {
 	class MainWindow;
@@ -39,7 +40,8 @@ private:
 	Data::Document m_document;
 	TypeSafeSettings m_typeSafeSettings;
 	Ui::MainWindow* ui;
-	VideoPlayer m_videoPlayer;
+	VideoPlayer* m_videoPlayer;
+	GraphView* m_graphView;
 };
 
 #endif // MAINWINDOW_H
