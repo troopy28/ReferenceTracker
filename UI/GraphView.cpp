@@ -1,6 +1,8 @@
 #include "GraphView.h"
 
+#include <qevent.h>
 #include <QFile>
+#include <QMessageBox>
 #include <QPainter>
 #include <QPainterPath>
 #include <QTime>
@@ -16,7 +18,32 @@ GraphView::GraphView(Data::Document& document, QWidget* parent) :
 	connect(&m_document.GetVideo(), &Data::Video::VideoLoaded, this, &GraphView::ForceRedraw);
 }
 
-void GraphView::paintEvent(QPaintEvent* event)
+
+
+void GraphView::resizeEvent(QResizeEvent* evt)
+{
+	QWidget::resizeEvent(evt);
+	ForceRedraw();
+}
+
+void GraphView::mousePressEvent(QMouseEvent* evt)
+{
+	QWidget::mousePressEvent(evt);
+	const int clickedFrame = controlPosToFrame(static_cast<int>(evt->localPos().x()));
+	QMessageBox msgBox;
+	msgBox.setText("Clicked Frame: " + QString::number(clickedFrame));
+	msgBox.exec();
+}
+
+void GraphView::MovePlayhead(int target)
+{
+	repaint();
+	// todo: smooth transition from the current frame to the target frame. but later.
+}
+
+#pragma region Drawing
+
+void GraphView::paintEvent(QPaintEvent* evt)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);
@@ -26,21 +53,6 @@ void GraphView::paintEvent(QPaintEvent* event)
 	DrawPlayhead(painter);
 
 	m_requireRedraw = false;
-	// painter.setPen(Qt::NoPen);
-	// painter.setBrush(QBrush(Qt::red));
-	// painter.drawLine(QLineF(10, 0, 10, 100));
-}
-
-void GraphView::resizeEvent(QResizeEvent* event)
-{
-	QWidget::resizeEvent(event);
-	ForceRedraw();
-}
-
-void GraphView::MovePlayhead(int target)
-{
-	repaint();
-	// todo: smooth transition from the current frame to the target frame. but later.
 }
 
 void GraphView::ForceRedraw()
@@ -160,9 +172,18 @@ void GraphView::DrawPlayhead(QPainter& painter) const
 	painter.restore();
 }
 
+#pragma endregion
+
 int GraphView::frameToControlPos(const int frame) const
 {
 	return m_document.GetVideo().IsLoaded()
-		? static_cast<int>(static_cast<float>(width() * (frame - 1)) / static_cast<float>(m_document.GetVideo().GetFrameCount() - 2))
+		? static_cast<int>(static_cast<float>(width() * (frame)) / static_cast<float>(m_document.GetVideo().GetFrameCount() - 1))
 		: 1;
+}
+
+int GraphView::controlPosToFrame(const int controlPos) const
+{
+	return m_document.GetVideo().IsLoaded()
+		? static_cast<int>(static_cast<float>((m_document.GetVideo().GetFrameCount() - 2) * controlPos) / static_cast<float>(width()))
+		: 0;
 }

@@ -101,7 +101,7 @@ namespace Data
 	void Video::ReadFrameAtIndex(const int& index)
 	{
 		// 1. Clamp the index.
-		const int clampedIndex = std::clamp(index, 1, m_frameCount);
+		const int clampedIndex = std::clamp(index, 0, m_frameCount);
 
 		// 2. Special cases: clampedIndex is current +1, or clampedIndex is current.
 		if (clampedIndex == m_currentFrameIndex)

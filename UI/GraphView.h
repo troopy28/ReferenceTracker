@@ -14,8 +14,9 @@ public:
 	explicit GraphView(Data::Document& document, QWidget* parent = nullptr);
 
 protected:
-	void paintEvent(QPaintEvent* event) override;
-	void resizeEvent(QResizeEvent* event) override;
+	void paintEvent(QPaintEvent* evt) override;
+	void resizeEvent(QResizeEvent* evt) override;
+	void mousePressEvent(QMouseEvent* evt) override;
 
 private:
 	void MovePlayhead(int target);
@@ -26,6 +27,7 @@ private:
 	void DrawPlayhead(QPainter& painter) const;
 
 	_NODISCARD int frameToControlPos(int frame) const;
+	_NODISCARD int controlPosToFrame(int controlPos) const;
 
 	Data::Document& m_document;
 	QPixmap m_headerPixmap;
