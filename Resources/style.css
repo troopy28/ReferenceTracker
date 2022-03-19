@@ -14,7 +14,7 @@ QMenu::item:selected {
 }
 
 
-/* Test. */
+/* Test. Should not appear if the UI is setup correctly. */
 QScrollArea {
     background-color: rgb(200, 20, 20);
 }
