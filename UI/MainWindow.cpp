@@ -67,11 +67,6 @@ void MainWindow::ManualUiSetup()
 	bottomSplitter->addWidget(m_graphView);
 	bottomSplitter->setStretchFactor(1, 3);
 
-	// Global layout of the bottom control
-	QStackedLayout* layout = new QStackedLayout(this);
-	layout->setContentsMargins(0, 0, 0, 0);
-	layout->addWidget(bottomSplitter);
-	setLayout(layout);
 
 	globalVerticalSplitter->addWidget(bottomSplitter);
 	setCentralWidget(globalVerticalSplitter);
