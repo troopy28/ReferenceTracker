@@ -3,13 +3,14 @@
 #include "../Data/Document.h"
 #include <QListWidget>
 #include <QVBoxLayout>
+#include <QUndoStack>
 
 class TrackedPointsList : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit TrackedPointsList(Data::Document& document, QWidget* parent = nullptr);
+	explicit TrackedPointsList(Data::Document& document, QUndoStack& undoStack, QWidget* parent = nullptr);
 
 	/**
 	 * \brief Setup the widget managing this tracked point in the list
@@ -25,6 +26,7 @@ private:
 	void SetupLayout();
 
 	Data::Document& m_document;
+	QUndoStack& m_undoStack;
 	QVBoxLayout* m_pointsListLayout;
 	QSpacerItem* m_listSpacer;
 };

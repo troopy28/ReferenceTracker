@@ -11,7 +11,6 @@ namespace Data
 		m_trackedPoints(),
 		m_video(),
 		m_trailLength(),
-		m_undoStack(),
 		m_activePointIndices()
 	{
 	}
@@ -22,7 +21,6 @@ namespace Data
 		m_trackedPoints(std::move(other.m_trackedPoints)),
 		m_video(std::move(other.m_video)),
 		m_trailLength(other.m_trailLength),
-		m_undoStack(),
 		m_activePointIndices(std::move(other.m_activePointIndices))
 	{
 	}
@@ -71,22 +69,19 @@ namespace Data
 		m_filePath = filePath;
 	}
 
-	void Document::Undo()
-	{
-		m_undoStack.undo();
-	}
-
-	void Document::Redo()
-	{
-		m_undoStack.redo();
-	}
-
 	TrackedPoint& Document::CreateTrackedPoint()
 	{
 		const int pointIndex = m_trackedPoints.size() + 1;
 		const QString pointName = "Point " + QString::number(pointIndex + 1);
 		m_trackedPoints.push_back(TrackedPoint(pointName, pointIndex));
+		emit TrackedPointAdded(m_trackedPoints.last());
 		return m_trackedPoints.last();
+	}
+
+	void Document::RemoveTrackedPoint(const int index)
+	{
+		m_trackedPoints.removeAt(index);
+		emit TrackedPointRemoved(index);
 	}
 
 	const QVector<TrackedPoint>& Document::GetTrackedPoints() const

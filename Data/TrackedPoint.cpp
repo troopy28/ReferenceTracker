@@ -5,7 +5,7 @@ namespace Data
 	TrackedPoint::TrackedPoint(QString name, const int pointIndex) :
 		m_name(std::move(name)),
 		m_keyframes(),
-		m_color(static_cast<Qt::GlobalColor>(static_cast<int>(Qt::black) + (pointIndex + 5 % 13))),
+		m_color(static_cast<Qt::GlobalColor>(static_cast<int>(Qt::black) + ((pointIndex + 5) % 13))),
 		m_index(pointIndex),
 		m_showInViewport(true)
 	{

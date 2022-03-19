@@ -40,10 +40,15 @@ private:
 
 	Data::Document m_document;
 	TypeSafeSettings m_typeSafeSettings;
+	/**
+	 * \brief Undo stack managed by Qt to allow for undo/redo.
+	 */
+	QUndoStack m_undoStack;
 	Ui::MainWindow* ui;
 	VideoPlayer* m_videoPlayer;
 	TrackedPointsList* m_trackedPointsList;
 	GraphView* m_graphView;
+
 };
 
 #endif // MAINWINDOW_H

@@ -13,9 +13,10 @@ MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	m_document(),
 	m_typeSafeSettings(),
+	m_undoStack(),
 	ui(new Ui::MainWindow),
 	m_videoPlayer(new VideoPlayer(m_document.GetVideo(), this)),
-	m_trackedPointsList(new TrackedPointsList(m_document, this)),
+	m_trackedPointsList(new TrackedPointsList(m_document, m_undoStack, this)),
 	m_graphView(new GraphView(m_document, this))
 {
 	ui->setupUi(this);

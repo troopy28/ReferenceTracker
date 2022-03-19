@@ -1,7 +1,6 @@
 #pragma once
 
 #include <optional>
-#include <QUndoStack>
 #include "TrackedPoint.h"
 #include "Video.h"
 
@@ -17,9 +16,10 @@ namespace Data
 	 * \brief Main class that stores all the data related to a project.
 	 * It also includes the file IO system.
 	 */
-	class Document
+	class Document : public QObject
 	{
 		using SaveAsCallback = std::function<std::optional<QString>()>;
+		Q_OBJECT
 
 	public:
 		Document();
@@ -40,11 +40,9 @@ namespace Data
 		 */
 		void Save(const SaveAsCallback& saveAsCallback);
 		void LoadFromFile(const QString& filePath);
-
-		void Undo();
-		void Redo();
-
+		
 		TrackedPoint& CreateTrackedPoint();
+		void RemoveTrackedPoint(int index);
 		_NODISCARD const QVector<TrackedPoint>& GetTrackedPoints() const;
 		_NODISCARD const TrailLength& GetTrailLength() const;
 		_NODISCARD const QVector<int>& GetActivePointIndices() const;
@@ -53,7 +51,9 @@ namespace Data
 		Video& GetVideo();
 
 	signals:
-		void TrackedPointsListChanged(const QVector<TrackedPoint>& newPoints);
+		void TrackedPointAdded(TrackedPoint& addedPoint);
+		void TrackedPointRemoved(int pointIndex);
+		void TrackedPointsListChanged(const QVector<TrackedPoint>& pointsList);
 		void TrailLengthChanged(const TrailLength& newLength);
 
 	private:
@@ -80,10 +80,6 @@ namespace Data
 		 * and on the right on the timeline.
 		 */
 		TrailLength m_trailLength;
-		/**
-		 * \brief Undo stack managed by Qt to allow for undo/redo.
-		 */
-		QUndoStack m_undoStack;
 		/**
 		 * \brief Active points are the points that need to be tracked by automatic trackers,
 		 * or manually pointed by the user.

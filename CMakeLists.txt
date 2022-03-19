@@ -60,7 +60,7 @@ add_executable (ReferenceTracker
     "UI/MainWindow.h"
 
     # Le fichier de démarrage.
-    "main.cpp"  "UI/GraphView.h" "UI/GraphView.cpp")
+    "main.cpp"  "UI/GraphView.h" "UI/GraphView.cpp" "Actions/TrackedPointCommands.h" "Actions/TrackedPointCommands.cpp")
 
 target_link_libraries(ReferenceTracker Qt5::Widgets Qt5::Multimedia Qt5::3DCore)
 target_link_libraries(ReferenceTracker ${OpenCV_LIBS})

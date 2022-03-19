@@ -7,18 +7,20 @@
 #include <QDebug>
 #include <QLineEdit>
 #include <QColorDialog>
-#include <QTimer>
 
 #include "ClickableLabel.h"
 #include "ScrollableGraphicsView.h"
+#include "../Actions/TrackedPointCommands.h"
 
-TrackedPointsList::TrackedPointsList(Data::Document& document, QWidget* parent) :
+TrackedPointsList::TrackedPointsList(Data::Document& document, QUndoStack& undoStack, QWidget* parent) :
 	QWidget(parent),
 	m_document(document),
+	m_undoStack(undoStack),
 	m_pointsListLayout(nullptr),
 	m_listSpacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding))
 {
 	SetupLayout();
+	connect(&m_document, &Data::Document::TrackedPointAdded, this, &TrackedPointsList::AddTrackedPoint);
 }
 
 void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
@@ -115,20 +117,6 @@ void TrackedPointsList::SetupLayout()
 	scrollArea->setWidget(scrollAreaWidget);
 	scrollArea->setStyleSheet(QString("QWidget { background-color: rgb(35, 35, 35); border-style: outset; border-width: 0;}"));
 
-	/* Test: TODO remove. */
-	QTimer* timer = new QTimer(this);
-	static int i = 0;
-	connect(timer, &QTimer::timeout, this, [this]
-		{
-			if (i < 10)
-			{
-				Data::TrackedPoint* testPoint = new Data::TrackedPoint("abc " + QString::number(i), i);
-				AddTrackedPoint(*testPoint);
-				i++;
-			}
-		});
-	timer->start(1000);
-
 	// Spacer to force items to live at the TOP only of the list (and not spread out vertically).
 	scrollAreaWidget->layout()->addItem(m_listSpacer);
 
@@ -138,6 +126,10 @@ void TrackedPointsList::SetupLayout()
 	bottomBarLayout->setContentsMargins(0, 0, 0, 0);
 	bottomBar->setLayout(bottomBarLayout);
 	QPushButton* addPointBtn = new QPushButton("Add Point", this);
+	connect(addPointBtn, &QPushButton::clicked, this, [this]
+		{
+			m_undoStack.push(new Actions::CreateTrackedPointCommand(m_document));
+		});
 	bottomBarLayout->addItem(new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum));
 	bottomBarLayout->addWidget(addPointBtn);
 
