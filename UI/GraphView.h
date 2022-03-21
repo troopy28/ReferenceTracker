@@ -33,4 +33,6 @@ private:
 	QPixmap m_headerPixmap;
 	QPixmap m_curvesPixmap;
 	bool m_requireRedraw;
+	int m_playheadPosition;
+	bool m_movingPlayhead;
 };

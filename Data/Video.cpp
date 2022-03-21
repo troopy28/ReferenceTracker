@@ -78,7 +78,7 @@ namespace Data
 		emit VideoLoaded();
 
 		// 4. Load the first frame of the video.
-		ReadNextFrame();
+		ReadFrameAtIndex(0);
 		return true;
 	}
 

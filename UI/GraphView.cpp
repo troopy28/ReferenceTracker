@@ -12,7 +12,9 @@ GraphView::GraphView(Data::Document& document, QWidget* parent) :
 	m_document(document),
 	m_headerPixmap(width(), height()),
 	m_curvesPixmap(),
-	m_requireRedraw(true)
+	m_requireRedraw(true),
+	m_playheadPosition(0),
+	m_movingPlayhead(false)
 {
 	connect(&m_document.GetVideo(), &Data::Video::FrameChanged, this, &GraphView::MovePlayhead);
 	connect(&m_document.GetVideo(), &Data::Video::VideoLoaded, this, &GraphView::ForceRedraw);
@@ -30,13 +32,18 @@ void GraphView::mousePressEvent(QMouseEvent* evt)
 {
 	QWidget::mousePressEvent(evt);
 	const int clickedFrame = controlPosToFrame(static_cast<int>(evt->localPos().x()));
-	QMessageBox msgBox;
-	msgBox.setText("Clicked Frame: " + QString::number(clickedFrame));
-	msgBox.exec();
+
+	if(clickedFrame == m_document.GetVideo().GetCurrentFrameIndex())
+	{
+		QMessageBox msgBox;
+		msgBox.setText("Playhead selected! Frame: " + QString::number(clickedFrame));
+		msgBox.exec();
+	}
 }
 
-void GraphView::MovePlayhead(int target)
+void GraphView::MovePlayhead(const int target)
 {
+	m_playheadPosition = frameToControlPos(target);
 	repaint();
 	// todo: smooth transition from the current frame to the target frame. but later.
 }
@@ -143,9 +150,6 @@ void GraphView::DrawPlayhead(QPainter& painter) const
 	static constexpr int hTip = 12;
 	static constexpr QColor playheadColor(230, 75, 61);
 
-	const int currentFrame = m_document.GetVideo().GetCurrentFrameIndex();
-	const int position = frameToControlPos(currentFrame);
-
 	painter.save();
 
 	QBrush brush;
@@ -165,7 +169,7 @@ void GraphView::DrawPlayhead(QPainter& painter) const
 
 	painter.setBrush(brush); // Brush is used to fill shapes.
 	painter.setPen(playheadColor); // Pen is used to draw lines.
-	painter.translate(position, 0);
+	painter.translate(m_playheadPosition, 0);
 	painter.fillPath(path, brush);
 	painter.drawLine(0, hTip, 0, height());
 
