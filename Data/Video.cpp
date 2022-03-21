@@ -61,7 +61,7 @@ namespace Data
 			return false;
 		}
 
-		// 2. Reset all the members of the class: if loading the video fails despite the previous test,
+		// 3. Reset all the members of the class: if loading the video fails despite the previous test,
 		// this class must hold no data related to the previous video.
 		m_filePath = QString();
 		m_currentFrameIndex = 0;
@@ -71,7 +71,7 @@ namespace Data
 			m_capture.release();
 		m_frameMat.setTo(cv::Scalar(0.0, 0.0, 0.0));
 
-		// 3. Load the video.
+		// 4. Load the video.
 		m_capture.open(path.toStdString());
 		if (m_capture.isOpened())
 		{
@@ -88,7 +88,7 @@ namespace Data
 		m_filePath = path;
 		emit VideoLoaded();
 
-		// 4. Load the first frame of the video.
+		// 5. Load the first frame of the video.
 		ReadFrameAtIndex(0);
 		return true;
 	}
