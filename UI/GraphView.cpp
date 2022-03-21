@@ -66,7 +66,7 @@ void GraphView::mouseMoveEvent(QMouseEvent* evt)
 
 	Data::Video& video = m_document.GetVideo();
 
-	m_playheadPosition = static_cast<int>(evt->localPos().x());
+	m_playheadPosition = std::clamp(static_cast<int>(evt->localPos().x()), 0, width());
 	const int correspondingFrame = controlPosToFrame(m_playheadPosition);
 	if (correspondingFrame != video.GetCurrentFrameIndex())
 		video.ReadFrameAtIndex(correspondingFrame);
