@@ -38,6 +38,10 @@ add_executable (ReferenceTracker
     "Data/Document.cpp" 
     "Data/Document.h"
 
+    # Les actions.
+    "Actions/TrackedPointCommands.h"
+    "Actions/TrackedPointCommands.cpp"
+
     # L'interface graphique.
     "UI/TypeSafeSettings.h"
     "UI/TypeSafeSettings.cpp"
@@ -48,6 +52,9 @@ add_executable (ReferenceTracker
     "UI/ClickableLabel.h"
     "UI/ClickableLabel.cpp"
 
+    "UI/DynamicSplitter.h" 
+    "UI/DynamicSplitter.cpp"
+
     "UI/VideoPlayer.ui"
     "UI/VideoPlayer.cpp"
     "UI/VideoPlayer.h"
@@ -55,12 +62,15 @@ add_executable (ReferenceTracker
     "UI/TrackedPointsList.h"
     "UI/TrackedPointsList.cpp"
 
+    "UI/GraphView.h"
+    "UI/GraphView.cpp"
+
     "UI/MainWindow.ui"
     "UI/MainWindow.cpp"
     "UI/MainWindow.h"
 
     # Le fichier de démarrage.
-    "main.cpp"  "UI/GraphView.h" "UI/GraphView.cpp" "Actions/TrackedPointCommands.h" "Actions/TrackedPointCommands.cpp")
+    "main.cpp"     )
 
 target_link_libraries(ReferenceTracker Qt5::Widgets Qt5::Multimedia Qt5::3DCore)
 target_link_libraries(ReferenceTracker ${OpenCV_LIBS})

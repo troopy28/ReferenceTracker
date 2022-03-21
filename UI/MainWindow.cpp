@@ -1,13 +1,13 @@
 #include "MainWindow.h"
 #include "ui_MainWindow.h"
-#include <QSplitter>
 
 #include <QResizeEvent>
 #include <QFileDialog>
 #include <QMessageBox>
 #include <QFileInfo>
 #include <QDebug>
-#include <QStackedLayout>
+#include "DynamicSplitter.h"
+
 
 MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
@@ -52,24 +52,26 @@ void MainWindow::ManualUiSetup()
 {
 	// Global vertical splitter. On top is the video displayer and the tracker settings.
 	// At the bottom is the curves visualizer and the points list.
-	QSplitter* globalVerticalSplitter = new QSplitter(Qt::Vertical, this);
+	DynamicSplitter* globalVerticalSplitter = new DynamicSplitter(Qt::Vertical, this);
 	globalVerticalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	globalVerticalSplitter->addWidget(m_videoPlayer);
+	globalVerticalSplitter->AddWidget(m_videoPlayer);
 
-	QSplitter* bottomSplitter = new QSplitter(this);
+	DynamicSplitter* bottomSplitter = new DynamicSplitter(Qt::Horizontal, this);
 	bottomSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
 	// Setup the left part (points list).
-	bottomSplitter->addWidget(m_trackedPointsList);
+	bottomSplitter->AddWidget(m_trackedPointsList);
 
 	// Setup the right part (curves viewer / timeline).
-	bottomSplitter->addWidget(m_graphView);
+	bottomSplitter->AddWidget(m_graphView);
 	bottomSplitter->setStretchFactor(1, 3);
 
 
-	globalVerticalSplitter->addWidget(bottomSplitter);
+	globalVerticalSplitter->AddWidget(bottomSplitter);
 	setCentralWidget(globalVerticalSplitter);
+
+
 
 	// Dynamic menus setup.
 	GenerateRecentVideosMenu();
@@ -125,5 +127,5 @@ void MainWindow::OpenVideo(const QString& path)
 MainWindow::~MainWindow()
 {
 	qDebug() << "MainWindow::~MainWindow()",
-	delete ui;
+		delete ui;
 }
