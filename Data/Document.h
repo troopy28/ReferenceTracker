@@ -37,8 +37,11 @@ namespace Data
 		 * \param saveAsCallback Function that optionally provides a path to a file. If
 		 * no path is set, the document is not saved. It is up to the caller to choose
 		 * how to provide this path (here it's will be a Qt dialog).
+		 *
+		 * \param saveAs Force the document to ask for a new path using the saveAsCallback,
+		 * even if a path is currently saved in the document.
 		 */
-		void Save(const SaveAsCallback& saveAsCallback);
+		void Save(const SaveAsCallback& saveAsCallback, bool saveAs = false);
 		void LoadFromFile(const QString& filePath);
 		
 		TrackedPoint& CreateTrackedPoint();
@@ -50,11 +53,17 @@ namespace Data
 
 		Video& GetVideo();
 
+		_NODISCARD bool IsDirty() const;
+		void MarkDirty();
+
+		std::optional<QString> GetFilePath() const;
+
 	signals:
 		void TrackedPointAdded(TrackedPoint& addedPoint);
 		void TrackedPointRemoved(int pointIndex);
 		void TrackedPointsListChanged(const QVector<TrackedPoint>& pointsList);
 		void TrailLengthChanged(const TrailLength& newLength);
+		void DocumentDirtinessChanged();
 
 	private:
 		/**

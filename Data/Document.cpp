@@ -36,11 +36,11 @@ namespace Data
 		return *this;
 	}
 
-	void Document::Save(const SaveAsCallback& saveAsCallback)
+	void Document::Save(const SaveAsCallback& saveAsCallback, const bool saveAs)
 	{
 		// 1. If no path is currently set, try getting one. If this fails, do not save
 		// the document.
-		if(!m_filePath.has_value())
+		if(!m_filePath.has_value() || saveAs)
 		{
 			m_filePath = saveAsCallback();
 			if (!m_filePath.has_value())
@@ -50,7 +50,13 @@ namespace Data
 		}
 
 		// 2. Actual saving logic.
+		qDebug() << "Saving project in " << m_filePath.value();
 		qWarning() << "todo"; // TODO
+
+
+		// Once everything is saved, mark the document as non dirty.
+		m_dirty = false;
+		DocumentDirtinessChanged();
 	}
 
 	void Document::LoadFromFile(const QString& filePath)
@@ -71,18 +77,18 @@ namespace Data
 
 	TrackedPoint& Document::CreateTrackedPoint()
 	{
-		qDebug() << "Document::CreateTrackedPoint()";
 		const int pointIndex = m_trackedPoints.size();
 		const QString pointName = "Point " + QString::number(pointIndex + 1);
 		m_trackedPoints.push_back(TrackedPoint(pointName, pointIndex));
+		MarkDirty();
 		emit TrackedPointAdded(m_trackedPoints.last());
 		return m_trackedPoints.last();
 	}
 
 	void Document::RemoveTrackedPoint(const int index)
 	{
-		qDebug() << "Document::RemoveTrackedPoint()";
 		m_trackedPoints.removeAt(index);
+		MarkDirty();
 		emit TrackedPointRemoved(index);
 	}
 
@@ -107,10 +113,27 @@ namespace Data
 			m_activePointIndices.push_back(point.GetPointIndex());
 		else
 			m_activePointIndices.removeOne(point.GetPointIndex());
+		MarkDirty();
 	}
 
 	Video& Document::GetVideo()
 	{
 		return m_video;
+	}
+
+	bool Document::IsDirty() const
+	{
+		return m_dirty;
+	}
+
+	void Document::MarkDirty()
+	{
+		m_dirty = true;
+		emit DocumentDirtinessChanged();
+	}
+
+	std::optional<QString> Document::GetFilePath() const
+	{
+		return m_filePath;
 	}
 }

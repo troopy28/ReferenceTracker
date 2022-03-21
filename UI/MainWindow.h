@@ -34,9 +34,13 @@ private:
 
 	// Menu bar management.
 	void OpenVideoMenuItemClicked();
+	void SaveMenuItemClicked();
+	void SaveAsMenuItemClicked();
 	void GenerateRecentVideosMenu();
 	void OpenVideo(const QString& path);
 
+	// Window management.
+	void ComputeWindowTitle();
 
 	Data::Document m_document;
 	TypeSafeSettings m_typeSafeSettings;

@@ -3,8 +3,15 @@ QWidget {
     color: rgb(170, 170, 170);
 }
 
-/* Top menu. */
+QWidget::corner {
+    background-color: rgb(42, 42, 42);
+    color: rgb(170, 170, 170);
+}
 
+
+
+
+/* Top menu. */
 QMenuBar {
     background-color: rgb(42, 42, 42);
 }
@@ -58,7 +65,13 @@ QLineEdit:hover {
 }
 
 QStatusBar {
+    color: rgb(170, 170, 170);
     background-color: rgb(20, 20, 20);
+}
+
+QStatusBar::item {
+    background-color: rgb(20, 20, 20);
+    color: rgb(170, 170, 170);
 }
 
 
