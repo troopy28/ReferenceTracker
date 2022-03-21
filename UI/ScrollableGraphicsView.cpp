@@ -2,6 +2,7 @@
 
 #include <QWheelEvent>
 #include <QTimeLine>
+#include <QDebug>
 
 ScrollableGraphicsView::ScrollableGraphicsView(QWidget* parent) :
 	QGraphicsView(parent),
@@ -48,6 +49,10 @@ void ScrollableGraphicsView::mousePressEvent(QMouseEvent* event)
 			Qt::LeftButton, event->buttons() | Qt::LeftButton, event->modifiers());
 		QGraphicsView::mousePressEvent(&fakeEvent);
 	}
+	else if (event->button() == Qt::LeftButton)
+	{
+		HandleSingleClick(event);
+	}
 	else
 	{
 		QGraphicsView::mousePressEvent(event);
@@ -72,6 +77,12 @@ void ScrollableGraphicsView::mouseReleaseEvent(QMouseEvent* event)
 	{
 		QGraphicsView::mouseReleaseEvent(event);
 	}
+}
+
+void ScrollableGraphicsView::HandleSingleClick(const QMouseEvent* evt)
+{
+	const QPointF scenePosition = mapToScene(evt->pos());
+	emit LeftClicked(scenePosition);
 }
 
 void ScrollableGraphicsView::ScalingTime(double x)

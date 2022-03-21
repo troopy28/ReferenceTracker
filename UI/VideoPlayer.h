@@ -35,6 +35,9 @@ private:
 
 	void OnVideoLoaded();
 	void CenterVideo();
+	void OnGraphicsViewClicked(const QPointF& scenePosition);
+
+	QPointF ScenePosToImagePos(const QPointF& scenePosition) const;
 
 	Ui::VideoPlayer* ui;
 	Data::Video& m_video;

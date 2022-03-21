@@ -41,6 +41,9 @@ VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
 	// Connect the timer's timeout event to the ReadNextFrame function of the video object.
 	connect(&m_timer, &QTimer::timeout, this, &VideoPlayer::TimerTick);
 
+	// Connect the mouse click on the video surface.
+	connect(ui->graphicsView, &ScrollableGraphicsView::LeftClicked, this, &VideoPlayer::OnGraphicsViewClicked);
+
 	CenterVideo();
 }
 
@@ -134,14 +137,31 @@ void VideoPlayer::CenterVideo()
 	const int controlWidth = ui->graphicsView->width();
 	const int controlHeight = ui->graphicsView->height();
 
-	const int xCenter = controlWidth / 2 - width / 2;
-	const int yCenter = controlHeight / 2 - height / 2;
-	m_pixmapDisplayer.setPos(xCenter, yCenter);
+	const int xOrigin = controlWidth / 2 - width / 2;
+	const int yOrigin = controlHeight / 2 - height / 2;
+	m_pixmapDisplayer.setPos(xOrigin, yOrigin);
 
 	ui->graphicsView->setSceneRect(0, 0, controlWidth, controlHeight);
 	// ui->graphicsView->scene()->addRect(0, 0, controlWidth, controlHeight, QPen(Qt::red)); todo remove this comment
 }
 
+void VideoPlayer::OnGraphicsViewClicked(const QPointF& scenePosition)
+{
+	qDebug() << "scenePosition: " << scenePosition;
+	qDebug() << "imagePosition: " << ScenePosToImagePos(scenePosition);
+
+}
+
+QPointF VideoPlayer::ScenePosToImagePos(const QPointF& scenePosition) const
+{
+	const int width = m_video.GetWidth();
+	const int height = m_video.GetHeigth();
+	const int controlWidth = ui->graphicsView->width();
+	const int controlHeight = ui->graphicsView->height();
+	const int xOrigin = controlWidth / 2 - width / 2;
+	const int yOrigin = controlHeight / 2 - height / 2;
+	return {scenePosition.x() - xOrigin, scenePosition.y() - yOrigin};
+}
 
 void VideoPlayer::Render(const int)
 {
@@ -160,7 +180,7 @@ void VideoPlayer::Render(const int)
 void VideoPlayer::resizeEvent(QResizeEvent* event)
 {
 	QWidget::resizeEvent(event);
-
+	
 	CenterVideo();
 }
 
