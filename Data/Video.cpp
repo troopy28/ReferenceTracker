@@ -52,8 +52,17 @@ namespace Data
 			return false;
 		}
 
-		// 2. Reset all the members of the class: if loading the video fails, this class must hold no
-		// data related to the previous video.
+		// 2. Try loading the video on a dummy capture to see if it works.
+		cv::VideoCapture testCapture;
+		testCapture.open(path.toStdString());
+		if (!testCapture.isOpened())
+		{
+			qWarning() << "Could not load the video at" << path << "(but the file does exist -- make sure it is a video).";
+			return false;
+		}
+
+		// 2. Reset all the members of the class: if loading the video fails despite the previous test,
+		// this class must hold no data related to the previous video.
 		m_filePath = QString();
 		m_currentFrameIndex = 0;
 		m_frameRate = 0;
