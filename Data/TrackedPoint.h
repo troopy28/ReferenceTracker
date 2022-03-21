@@ -34,6 +34,7 @@ namespace Data
 
 		void AddKeyframe(const Keyframe& keyframe);
 		Keyframe& GetKeyframe(int index);
+		_NODISCARD const QHash<int, Keyframe>& GetKeyframes() const;
 
 		_NODISCARD const QColor& GetColor() const;
 		void SetColor(const QColor& color);
@@ -44,6 +45,9 @@ namespace Data
 		_NODISCARD int GetPointIndex() const;
 		_NODISCARD bool IsVisibleInViewport() const;
 		void SetVisibleInViewport(bool visible);
+
+		void Save(QDataStream& out) const;
+		void Load(QDataStream& in);
 
 	signals:
 		void ColorChanged(const QColor& color);

@@ -24,6 +24,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	ApplyUiSettings();
 
 	// File menu.
+	connect(ui->actionOpenProject, &QAction::triggered, this, &MainWindow::OpenProjectMenuItemClicked);
 	connect(ui->actionOpen_Video, &QAction::triggered, this, &MainWindow::OpenVideoMenuItemClicked);
 	connect(ui->actionSave, &QAction::triggered, this, &MainWindow::SaveMenuItemClicked);
 	connect(ui->actionSave_As, &QAction::triggered, this, &MainWindow::SaveAsMenuItemClicked);
@@ -36,7 +37,6 @@ MainWindow::MainWindow(QWidget* parent) :
 	// Document.
 	connect(&m_document, &Data::Document::DocumentDirtinessChanged, this, &MainWindow::ComputeWindowTitle);
 
-	ComputeWindowTitle();
 	m_videoPlayer->Render(0);
 }
 
@@ -80,10 +80,11 @@ void MainWindow::ManualUiSetup()
 	globalVerticalSplitter->AddWidget(bottomSplitter);
 	setCentralWidget(globalVerticalSplitter);
 
-
+	ComputeWindowTitle();
 
 	// Dynamic menus setup.
 	GenerateRecentVideosMenu();
+	GenerateRecentProjectsMenu();
 }
 
 void MainWindow::ApplyUiSettings()
@@ -91,6 +92,13 @@ void MainWindow::ApplyUiSettings()
 	resize(m_typeSafeSettings.GetMinimizedWidth(), m_typeSafeSettings.GetMinimizedHeight());
 	if (m_typeSafeSettings.IsMaximized())
 		setWindowState(Qt::WindowMaximized);
+}
+
+void MainWindow::OpenProjectMenuItemClicked()
+{
+	const QString fileName = QFileDialog::getOpenFileName(
+		this, "Open Project", "", "Tracking Project File(*.tpj)");
+	OpenProject(fileName);
 }
 
 #pragma region Menu bar callbacks
@@ -115,11 +123,27 @@ std::optional<QString> SaveAsCallback()
 void MainWindow::SaveMenuItemClicked()
 {
 	m_document.Save(&SaveAsCallback);
+	m_typeSafeSettings.AddRecentProject(m_document.GetFilePath().value());
+	GenerateRecentVideosMenu();
 }
 
 void MainWindow::SaveAsMenuItemClicked()
 {
 	m_document.Save(&SaveAsCallback, true);
+	m_typeSafeSettings.AddRecentProject(m_document.GetFilePath().value());
+	GenerateRecentVideosMenu();
+}
+
+void MainWindow::GenerateRecentProjectsMenu()
+{
+	ui->openRecentProjectMenu->clear();
+
+	const QStringList recentProjectPaths = m_typeSafeSettings.GetRecentProjects();
+	for (const QString& path : recentProjectPaths)
+	{
+		const QFileInfo fileInfo(path);
+		ui->openRecentProjectMenu->addAction(fileInfo.fileName(), [this, path] {OpenProject(path); });
+	}
 }
 
 void MainWindow::GenerateRecentVideosMenu()
@@ -134,6 +158,23 @@ void MainWindow::GenerateRecentVideosMenu()
 	}
 }
 
+void MainWindow::OpenProject(const QString& path)
+{
+	if (!path.isEmpty())
+	{
+		try
+		{
+			m_document.LoadFromFile(path);
+			m_typeSafeSettings.AddRecentProject(path);
+			GenerateRecentProjectsMenu();
+		}
+		catch (std::exception& ex)
+		{
+			QMessageBox::warning(this, QString("Could not open the project:\n ") + ex.what(), path);
+		}
+	}
+}
+
 void MainWindow::OpenVideo(const QString& path)
 {
 	if (!path.isEmpty())
@@ -142,6 +183,7 @@ void MainWindow::OpenVideo(const QString& path)
 		{
 			m_typeSafeSettings.AddRecentVideo(path);
 			GenerateRecentVideosMenu();
+			m_document.MarkDirty();
 		}
 		else
 		{

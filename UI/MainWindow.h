@@ -33,11 +33,17 @@ private:
 	void ApplyUiSettings();
 
 	// Menu bar management.
+	void OpenProjectMenuItemClicked();
 	void OpenVideoMenuItemClicked();
 	void SaveMenuItemClicked();
 	void SaveAsMenuItemClicked();
+
+	void GenerateRecentProjectsMenu();
 	void GenerateRecentVideosMenu();
+
+	void OpenProject(const QString& path);
 	void OpenVideo(const QString& path);
+
 
 	// Window management.
 	void ComputeWindowTitle();

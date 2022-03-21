@@ -4,8 +4,27 @@
 #include "TrackedPoint.h"
 #include "Video.h"
 
+
 namespace Data
 {
+	class WrongFormatException final : public std::exception
+	{
+	public:
+		WrongFormatException() :
+			std::exception("Wrong format. Make sure to select a Tracking Project File (*.tpj).")
+		{
+		}
+	};
+
+	class WrongTestIntegerException final : public std::exception
+	{
+	public:
+		WrongTestIntegerException() :
+			std::exception("There was an error reading the file (test integers do not match).")
+		{
+		}
+	};
+
 	struct TrailLength
 	{
 		int left{ 0 };
@@ -23,7 +42,7 @@ namespace Data
 
 	public:
 		Document();
-		~Document() = default;
+		~Document() override = default;
 		Q_DISABLE_COPY(Document);  // NOLINT(clang-diagnostic-extra-semi) (because without this extra semicolon, visual studio is dumb and indents the whole file one tab too much on the right).
 		Document(Document&& other) noexcept;
 		Document& operator=(Document&& other) noexcept;
@@ -45,6 +64,7 @@ namespace Data
 		void LoadFromFile(const QString& filePath);
 		
 		TrackedPoint& CreateTrackedPoint();
+		TrackedPoint& CreateTrackedPoint(QString name, int index);
 		void RemoveTrackedPoint(int index);
 		_NODISCARD const QVector<TrackedPoint>& GetTrackedPoints() const;
 		_NODISCARD const TrailLength& GetTrailLength() const;
@@ -56,7 +76,7 @@ namespace Data
 		_NODISCARD bool IsDirty() const;
 		void MarkDirty();
 
-		std::optional<QString> GetFilePath() const;
+		_NODISCARD std::optional<QString> GetFilePath() const;
 
 	signals:
 		void TrackedPointAdded(TrackedPoint& addedPoint);
@@ -66,6 +86,21 @@ namespace Data
 		void DocumentDirtinessChanged();
 
 	private:
+		/**
+		 * \brief When this function is called, it is expected that
+		 * m_filePath has a value. Otherwise a runtime error is
+		 * thrown.
+		 */
+		void SaveImpl() const;
+		/**
+		 * \brief When this function is called, it is expected that
+		 * m_filePath has a value. Otherwise a runtime error is
+		 * thrown.
+		 */
+		void LoadImpl(const QString& path);
+
+		void ClearDocument();
+
 		/**
 		 * \brief Stores the path to the file used to save the current
 		 * document. There can be no path (for a new document for

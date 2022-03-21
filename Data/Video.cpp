@@ -1,6 +1,7 @@
 #include "Video.h"
 #include <QFile>
 #include <QDebug>
+#include <QDataStream>
 
 namespace Data
 {
@@ -75,6 +76,7 @@ namespace Data
 			qWarning() << "Could not load the video at" << path << "(but the file does exist -- make sure it is a video).";
 			return false;
 		}
+		m_filePath = path;
 		emit VideoLoaded();
 
 		// 4. Load the first frame of the video.
@@ -153,5 +155,10 @@ namespace Data
 	bool Video::IsLoaded() const
 	{
 		return m_frameCount != 0;
+	}
+
+	QString Video::GetFilePath() const
+	{
+		return m_filePath;
 	}
 }

@@ -32,9 +32,14 @@
       <string>Open Recent Video</string>
      </property>
     </widget>
+    <widget class="QMenu" name="openRecentProjectMenu">
+     <property name="title">
+      <string>Open Recent Project</string>
+     </property>
+    </widget>
     <addaction name="actionNew"/>
     <addaction name="actionOpenProject"/>
-    <addaction name="actionOpenRecentProject"/>
+    <addaction name="openRecentProjectMenu"/>
     <addaction name="separator"/>
     <addaction name="actionOpen_Video"/>
     <addaction name="openRecentVideoMenu"/>
@@ -63,11 +68,6 @@
   <action name="actionOpenProject">
    <property name="text">
     <string>Open Project</string>
-   </property>
-  </action>
-  <action name="actionOpenRecentProject">
-   <property name="text">
-    <string>Open Recent Project</string>
    </property>
   </action>
   <action name="actionSave">
@@ -118,6 +118,11 @@
   <action name="actionabc">
    <property name="text">
     <string>abc</string>
+   </property>
+  </action>
+  <action name="actiongh">
+   <property name="text">
+    <string>gh</string>
    </property>
   </action>
  </widget>

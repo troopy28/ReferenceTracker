@@ -2,7 +2,7 @@
 #include <QFile>
 
 TypeSafeSettings::TypeSafeSettings() :
-	m_settings("maxime_casas", "reference_tracker")
+	m_settings(QSettings::IniFormat, QSettings::UserScope, "maxime_casas", "reference_tracker")
 {
 	EnsureRecentVideosExist();
 }
@@ -51,6 +51,21 @@ QStringList TypeSafeSettings::GetRecentVideos() const
 	return m_settings.value(RECENT_VIDEOS, QStringList()).toStringList();
 }
 
+void TypeSafeSettings::AddRecentProject(const QString& path)
+{
+	QStringList recentProjects = GetRecentProjects();
+	if (recentProjects.contains(path))
+		recentProjects.removeAll(path);
+	recentProjects.insert(0, path);
+	m_settings.setValue(RECENT_PROJECTS, recentProjects);
+}
+
+QStringList TypeSafeSettings::GetRecentProjects() const
+{
+	return m_settings.value(RECENT_PROJECTS, QStringList()).toStringList();
+}
+
+
 void TypeSafeSettings::EnsureRecentVideosExist()
 {
 	QStringList recentVids = GetRecentVideos();
@@ -61,4 +76,16 @@ void TypeSafeSettings::EnsureRecentVideosExist()
 			it.remove();
 	}
 	m_settings.setValue(RECENT_VIDEOS, recentVids);
+}
+
+void TypeSafeSettings::EnsureRecentProjectsExist()
+{
+	QStringList recentProjects = GetRecentProjects();
+	QMutableListIterator<QString> it(recentProjects);
+	while (it.hasNext())
+	{
+		if (!QFile::exists(it.next()))
+			it.remove();
+	}
+	m_settings.setValue(RECENT_PROJECTS, recentProjects);
 }

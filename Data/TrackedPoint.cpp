@@ -1,4 +1,5 @@
 #include "TrackedPoint.h"
+#include <QDataStream>
 
 namespace Data
 {
@@ -59,6 +60,11 @@ namespace Data
 		return m_keyframes[index];
 	}
 
+	const QHash<int, Keyframe>& TrackedPoint::GetKeyframes() const
+	{
+		return m_keyframes;
+	}
+
 	const QColor& TrackedPoint::GetColor() const
 	{
 		return m_color;
@@ -94,5 +100,47 @@ namespace Data
 	{
 		m_showInViewport = visible;
 		emit VisibilityChanged(m_showInViewport);
+	}
+
+	void TrackedPoint::Save(QDataStream& out) const
+	{
+		out << m_name;
+		out << static_cast<int32_t>(m_index); // Cast for clarity, but "useless".
+		out << m_color;
+		out << m_showInViewport;
+
+		out << m_keyframes.size();
+		for (const int key : m_keyframes.keys())
+		{
+			out << static_cast<int32_t>(key); // Cast for clarity, but "useless".
+			const auto& [position, frameIndex] = m_keyframes[key];
+			out << static_cast<int32_t>(frameIndex); // Again.
+			out << position;
+		}
+	}
+
+	void TrackedPoint::Load(QDataStream& in)
+	{
+		// The name and index are loaded by the document.
+
+		in >> m_color;
+		emit ColorChanged(m_color);
+		in >> m_showInViewport;
+		VisibilityChanged(m_showInViewport);
+
+		int32_t keyframesCount;
+		in >> keyframesCount;
+		m_keyframes.reserve(keyframesCount);
+		for(int i = 0; i < keyframesCount; i++)
+		{
+			int32_t key;
+			in >> key;
+
+			Keyframe keyframe;
+			in >> keyframe.frameIndex;
+			in >> keyframe.position;
+			m_keyframes[key] = keyframe;
+		}
+
 	}
 }
