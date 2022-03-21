@@ -46,6 +46,7 @@ void GraphView::mousePressEvent(QMouseEvent* evt)
 	{
 		m_movingPlayhead = true;
 		this->setCursor(Qt::SplitHCursor);
+		repaint();
 	}
 }
 
@@ -186,12 +187,14 @@ void GraphView::DrawPlayhead(QPainter& painter) const
 	static constexpr int h = 8;
 	static constexpr int hTip = 12;
 	static constexpr QColor unselectedPlayheadColor(230, 75, 61);
-	static constexpr QColor selectedPlayheadColor(250, 85, 75);
+	static constexpr QColor selectedPlayheadColor(255, 100, 70);
 
 	painter.save();
 
+	const QColor color = m_movingPlayhead ? selectedPlayheadColor : unselectedPlayheadColor;
+
 	QBrush brush;
-	brush.setColor(unselectedPlayheadColor);
+	brush.setColor(color);
 	brush.setStyle(Qt::SolidPattern);
 
 	QPainterPath path;
@@ -206,7 +209,7 @@ void GraphView::DrawPlayhead(QPainter& painter) const
 
 
 	painter.setBrush(brush); // Brush is used to fill shapes.
-	painter.setPen(unselectedPlayheadColor); // Pen is used to draw lines.
+	painter.setPen(color); // Pen is used to draw lines.
 	painter.translate(m_playheadPosition, 0);
 	painter.fillPath(path, brush);
 	painter.drawLine(0, hTip, 0, height());
