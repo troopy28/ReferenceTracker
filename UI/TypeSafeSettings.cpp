@@ -54,10 +54,11 @@ QStringList TypeSafeSettings::GetRecentVideos() const
 void TypeSafeSettings::EnsureRecentVideosExist()
 {
 	QStringList recentVids = GetRecentVideos();
-	for(const QString& path : recentVids)
+	QMutableListIterator<QString> it(recentVids);
+	while(it.hasNext())
 	{
-		if (!QFile::exists(path))
-			recentVids.removeAll(path);
+		if (!QFile::exists(it.next()))
+			it.remove();
 	}
 	m_settings.setValue(RECENT_VIDEOS, recentVids);
 }

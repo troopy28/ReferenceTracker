@@ -103,16 +103,14 @@ namespace Data
 		// 1. Clamp the index.
 		const int clampedIndex = std::clamp(index, 0, m_frameCount);
 
-		// 2. Special cases: clampedIndex is current +1, or clampedIndex is current.
-		if (clampedIndex == m_currentFrameIndex)
-		{
-			return;
-		}
+		// 2. Special case: clampedIndex is current +1.
 		if (clampedIndex == m_currentFrameIndex + 1)
 		{
 			ReadNextFrame();
 		}
 		// 3. General case: read an arbitrary frame.
+		// This includes the case where we want to re-read the current frame
+		// (this is needed for instance for the first frame read.)
 		else
 		{
 			m_capture.set(cv::CAP_PROP_POS_FRAMES, clampedIndex);
