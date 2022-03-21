@@ -1,16 +1,23 @@
 #include "GraphView.h"
 
 #include <qevent.h>
-#include <QFile>
+#include <QTimeLine>
 #include <QMessageBox>
 #include <QPainter>
 #include <QPainterPath>
 #include <QTime>
+#include <QDebug>
 
 template<typename T>
-inline T Abs(const T a)
+T Abs(const T a)
 {
 	return a < T(0) ? -a : a;
+}
+
+template<typename T>
+T Lerp(const T a, const T b, const double f)
+{
+	return static_cast<T>(static_cast<double>(a) + f * static_cast<double>(b - a));
 }
 
 GraphView::GraphView(Data::Document& document, QWidget* parent) :
@@ -20,7 +27,9 @@ GraphView::GraphView(Data::Document& document, QWidget* parent) :
 	m_curvesPixmap(),
 	m_requireRedraw(true),
 	m_playheadPosition(0),
-	m_movingPlayhead(false)
+	m_movingPlayhead(false),
+	m_targetPlayheadPosition(0),
+	m_originalPlayheadPosition(0)
 {
 	connect(&m_document.GetVideo(), &Data::Video::FrameChanged, this, &GraphView::MovePlayheadToFrame);
 	connect(&m_document.GetVideo(), &Data::Video::VideoLoaded, this, &GraphView::ForceRedraw);
@@ -74,16 +83,43 @@ void GraphView::mouseReleaseEvent(QMouseEvent* evt)
 	MovePlayheadToFrame(m_document.GetVideo().GetCurrentFrameIndex()); // Put the frame indicator at an actual, integer frame position.
 }
 
-void GraphView::MovePlayheadToFrame(const int frame)
+void GraphView::MovePlayheadToFrame(const int frame, const bool instantaneous)
 {
 	// If the frame is changed by the user moving the cursor, do nothing.
 	if (m_movingPlayhead)
 		return;
 
-	// The frame is changed by the video player: change the position of the playhead accordingly.
-	m_playheadPosition = frameToControlPos(frame);
+	// Below: the frame is changed by something external to this control (video player for instance).
+
+
+	// Instantaneous playhead displacement.
+	if (instantaneous)
+	{
+		m_targetPlayheadPosition = frameToControlPos(frame);
+		m_playheadPosition = m_targetPlayheadPosition;
+		m_originalPlayheadPosition = m_targetPlayheadPosition;
+		repaint();
+		return;
+	}
+
+	// Start a smooth playhead motion.
+
+	m_originalPlayheadPosition = m_playheadPosition;
+	m_targetPlayheadPosition = frameToControlPos(frame);
+	QTimeLine* anim = new QTimeLine(1000 / m_document.GetVideo().GetFrameRate(), this);
+	anim->setUpdateInterval(100 / m_document.GetVideo().GetFrameRate());
+	connect(anim, &QTimeLine::valueChanged, this, &GraphView::SmoothPlayheadMove);
+	connect(anim, &QTimeLine::finished, this, [frame, this] {MovePlayheadToFrame(frame, true); });
+	anim->start();
+
 	repaint();
 	// todo: smooth transition from the current frame to the target frame. but later.
+}
+
+void GraphView::SmoothPlayheadMove(const double x)
+{
+	m_playheadPosition = Lerp(m_originalPlayheadPosition, m_targetPlayheadPosition, x);
+	repaint();
 }
 
 #pragma region Drawing

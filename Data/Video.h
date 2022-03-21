@@ -32,7 +32,12 @@ namespace Data
 		void ReadNextFrame();
 
 	signals:
-		void FrameChanged(int frameIndex);
+		/**
+		 * \brief Called when a new video frame gets read.
+		 * \param frameIndex Index of the currently displayed video frame.
+		 * \param isJump Whether the frame is the frame just after the previous one, or if there was a jump in the timeline.
+		 */
+		void FrameChanged(int frameIndex, bool isJump);
 		void VideoLoaded();
 
 	private:

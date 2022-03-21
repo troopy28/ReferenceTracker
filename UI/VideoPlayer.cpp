@@ -70,9 +70,9 @@ void VideoPlayer::TimerTick()
 	m_video.ReadNextFrame();
 
 	// If we reach the end of the video, stop playing.
-	if (m_video.GetCurrentFrameIndex() >= m_video.GetFrameCount())
+	if (m_video.GetCurrentFrameIndex() >= m_video.GetFrameCount() - 1)
 	{
-		m_timer.stop();
+		Pause();
 	}
 	QApplication::processEvents();
 }

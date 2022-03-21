@@ -95,7 +95,7 @@ namespace Data
 		m_capture >> m_frameMat;
 		m_currentFrameIndex++;
 
-		emit FrameChanged(m_currentFrameIndex);
+		emit FrameChanged(m_currentFrameIndex, false);
 	}
 
 	void Video::ReadFrameAtIndex(const int& index)
@@ -116,7 +116,7 @@ namespace Data
 			m_capture.set(cv::CAP_PROP_POS_FRAMES, clampedIndex);
 			m_capture >> m_frameMat;
 			m_currentFrameIndex = clampedIndex;
-			emit FrameChanged(m_currentFrameIndex);
+			emit FrameChanged(m_currentFrameIndex, true);
 		}
 	}
 

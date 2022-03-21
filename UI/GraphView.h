@@ -21,7 +21,8 @@ protected:
 	void mouseReleaseEvent(QMouseEvent* evt) override;
 
 private:
-	void MovePlayheadToFrame(int frame);
+	void MovePlayheadToFrame(int frame, bool instantaneous = false);
+	void SmoothPlayheadMove(double x);
 
 	void ForceRedraw();
 	void DrawHeader(QPainter& widgetPainter);
@@ -37,4 +38,6 @@ private:
 	bool m_requireRedraw;
 	int m_playheadPosition;
 	bool m_movingPlayhead;
+	int m_targetPlayheadPosition;
+	int m_originalPlayheadPosition;
 };
