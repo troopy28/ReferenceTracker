@@ -109,11 +109,10 @@ void GraphView::MovePlayheadToFrame(const int frame, const bool instantaneous)
 	QTimeLine* anim = new QTimeLine(1000 / m_document.GetVideo().GetFrameRate(), this);
 	anim->setUpdateInterval(100 / m_document.GetVideo().GetFrameRate());
 	connect(anim, &QTimeLine::valueChanged, this, &GraphView::SmoothPlayheadMove);
-	connect(anim, &QTimeLine::finished, this, [frame, this] {MovePlayheadToFrame(frame, true); });
+	connect(anim, &QTimeLine::finished, this, [frame, anim, this] {MovePlayheadToFrame(frame, true); anim->~QTimeLine(); });
 	anim->start();
 
 	repaint();
-	// todo: smooth transition from the current frame to the target frame. but later.
 }
 
 void GraphView::SmoothPlayheadMove(const double x)
@@ -121,6 +120,7 @@ void GraphView::SmoothPlayheadMove(const double x)
 	m_playheadPosition = Lerp(m_originalPlayheadPosition, m_targetPlayheadPosition, x);
 	repaint();
 }
+
 
 #pragma region Drawing
 
