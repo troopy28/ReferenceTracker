@@ -60,6 +60,12 @@ void VideoPlayer::PlayBtnClicked()
 
 void VideoPlayer::Play()
 {
+	// Special case: we want to start playing from the last frame.
+	// A handy behaviour for this case is to play from the start (instead
+	// of doing nothing on the click).
+	if (m_video.GetCurrentFrameIndex() == m_video.GetFrameCount() - 1)
+		m_video.ReadFrameAtIndex(0);
+
 	const int interval = static_cast<int>(1000.0f / static_cast<float>(m_video.GetFrameRate()));
 	m_timer.start(interval);
 	ui->playBtn->setIcon(QIcon(QPixmap(":/Resources/pause.png")));
