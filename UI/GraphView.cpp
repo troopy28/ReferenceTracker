@@ -7,6 +7,12 @@
 #include <QPainterPath>
 #include <QTime>
 
+template<typename T>
+inline T Abs(const T a)
+{
+	return a < T(0) ? -a : a;
+}
+
 GraphView::GraphView(Data::Document& document, QWidget* parent) :
 	QWidget(parent),
 	m_document(document),
@@ -16,7 +22,7 @@ GraphView::GraphView(Data::Document& document, QWidget* parent) :
 	m_playheadPosition(0),
 	m_movingPlayhead(false)
 {
-	connect(&m_document.GetVideo(), &Data::Video::FrameChanged, this, &GraphView::MovePlayhead);
+	connect(&m_document.GetVideo(), &Data::Video::FrameChanged, this, &GraphView::MovePlayheadToFrame);
 	connect(&m_document.GetVideo(), &Data::Video::VideoLoaded, this, &GraphView::ForceRedraw);
 }
 
@@ -30,20 +36,51 @@ void GraphView::resizeEvent(QResizeEvent* evt)
 
 void GraphView::mousePressEvent(QMouseEvent* evt)
 {
-	QWidget::mousePressEvent(evt);
-	const int clickedFrame = controlPosToFrame(static_cast<int>(evt->localPos().x()));
+	constexpr int selectionArea = 3;
 
-	if(clickedFrame == m_document.GetVideo().GetCurrentFrameIndex())
+	if (!m_document.GetVideo().IsLoaded())
+		return;
+
+	const int clickedPos = static_cast<int>(evt->localPos().x());
+	if (Abs(clickedPos - m_playheadPosition) <= selectionArea)
 	{
-		QMessageBox msgBox;
-		msgBox.setText("Playhead selected! Frame: " + QString::number(clickedFrame));
-		msgBox.exec();
+		m_movingPlayhead = true;
+		this->setCursor(Qt::SplitHCursor);
 	}
 }
 
-void GraphView::MovePlayhead(const int target)
+void GraphView::mouseMoveEvent(QMouseEvent* evt)
 {
-	m_playheadPosition = frameToControlPos(target);
+	if (!m_movingPlayhead)
+		return;
+
+	Data::Video& video = m_document.GetVideo();
+
+	m_playheadPosition = static_cast<int>(evt->localPos().x());
+	const int correspondingFrame = controlPosToFrame(m_playheadPosition);
+	if (correspondingFrame != video.GetCurrentFrameIndex())
+		video.ReadFrameAtIndex(correspondingFrame);
+	repaint();
+}
+
+void GraphView::mouseReleaseEvent(QMouseEvent* evt)
+{
+	if (!m_movingPlayhead)
+		return;
+
+	m_movingPlayhead = false;
+	this->setCursor(Qt::ArrowCursor);
+	MovePlayheadToFrame(m_document.GetVideo().GetCurrentFrameIndex()); // Put the frame indicator at an actual, integer frame position.
+}
+
+void GraphView::MovePlayheadToFrame(const int frame)
+{
+	// If the frame is changed by the user moving the cursor, do nothing.
+	if (m_movingPlayhead)
+		return;
+
+	// The frame is changed by the video player: change the position of the playhead accordingly.
+	m_playheadPosition = frameToControlPos(frame);
 	repaint();
 	// todo: smooth transition from the current frame to the target frame. but later.
 }
@@ -79,7 +116,7 @@ void GraphView::DrawHeader(QPainter& widgetPainter)
 	static constexpr QColor normal(42, 42, 42);
 	static constexpr QColor light(64, 64, 64);
 
-	if(!m_requireRedraw)
+	if (!m_requireRedraw)
 	{
 		widgetPainter.drawPixmap(0, 0, width(), height(), m_headerPixmap);
 		return;
@@ -112,7 +149,7 @@ void GraphView::DrawHeader(QPainter& widgetPainter)
 			break;
 
 		// Small graduation, in the header.
-		if(xPos - lastDrawnMinigraduation > minimumMinigraduationSeparation)
+		if (xPos - lastDrawnMinigraduation > minimumMinigraduationSeparation)
 		{
 			pixmapPainter.drawLine(xPos, 0, xPos, (graduationIndex & 1) == 0 ? graduationsHeight : smallGraduationHeight); // x % n^2 <=> x & (n^2 - 1) .... which MSVC apparently doesn't optimize automatically here.
 			lastDrawnMinigraduation = xPos;
@@ -126,7 +163,7 @@ void GraphView::DrawHeader(QPainter& widgetPainter)
 			const QString timeStr = QDateTime::fromTime_t(time).toUTC().toString("mm:ss");
 			const QSize textSize = QFontMetrics(pixmapPainter.font()).size(Qt::TextSingleLine, timeStr);
 			const int textXpos = xPos - textSize.width() / 2;
-			if(textXpos - lastTextDrawX > minimumTextSeparation)
+			if (textXpos - lastTextDrawX > minimumTextSeparation)
 			{
 				pixmapPainter.drawText(textXpos, headerHeight - textSize.height() + 3, timeStr);
 				lastTextDrawX = xPos + textSize.width() / 2;
@@ -148,12 +185,13 @@ void GraphView::DrawPlayhead(QPainter& painter) const
 	static constexpr int halfWidth = 7;
 	static constexpr int h = 8;
 	static constexpr int hTip = 12;
-	static constexpr QColor playheadColor(230, 75, 61);
+	static constexpr QColor unselectedPlayheadColor(230, 75, 61);
+	static constexpr QColor selectedPlayheadColor(250, 85, 75);
 
 	painter.save();
 
 	QBrush brush;
-	brush.setColor(playheadColor);
+	brush.setColor(unselectedPlayheadColor);
 	brush.setStyle(Qt::SolidPattern);
 
 	QPainterPath path;
@@ -168,7 +206,7 @@ void GraphView::DrawPlayhead(QPainter& painter) const
 
 
 	painter.setBrush(brush); // Brush is used to fill shapes.
-	painter.setPen(playheadColor); // Pen is used to draw lines.
+	painter.setPen(unselectedPlayheadColor); // Pen is used to draw lines.
 	painter.translate(m_playheadPosition, 0);
 	painter.fillPath(path, brush);
 	painter.drawLine(0, hTip, 0, height());
@@ -188,6 +226,6 @@ int GraphView::frameToControlPos(const int frame) const
 int GraphView::controlPosToFrame(const int controlPos) const
 {
 	return m_document.GetVideo().IsLoaded()
-		? static_cast<int>(static_cast<float>((m_document.GetVideo().GetFrameCount() - 2) * controlPos) / static_cast<float>(width()))
+		? static_cast<int>(static_cast<float>((m_document.GetVideo().GetFrameCount() - 1) * controlPos) / static_cast<float>(width()))
 		: 0;
 }

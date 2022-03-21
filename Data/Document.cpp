@@ -72,7 +72,7 @@ namespace Data
 	TrackedPoint& Document::CreateTrackedPoint()
 	{
 		qDebug() << "Document::CreateTrackedPoint()";
-		const int pointIndex = m_trackedPoints.size() + 1;
+		const int pointIndex = m_trackedPoints.size();
 		const QString pointName = "Point " + QString::number(pointIndex + 1);
 		m_trackedPoints.push_back(TrackedPoint(pointName, pointIndex));
 		emit TrackedPointAdded(m_trackedPoints.last());

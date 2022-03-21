@@ -17,9 +17,11 @@ protected:
 	void paintEvent(QPaintEvent* evt) override;
 	void resizeEvent(QResizeEvent* evt) override;
 	void mousePressEvent(QMouseEvent* evt) override;
+	void mouseMoveEvent(QMouseEvent* evt) override;
+	void mouseReleaseEvent(QMouseEvent* evt) override;
 
 private:
-	void MovePlayhead(int target);
+	void MovePlayheadToFrame(int frame);
 
 	void ForceRedraw();
 	void DrawHeader(QPainter& widgetPainter);

@@ -133,7 +133,7 @@ void VideoPlayer::CenterVideo()
 	m_pixmapDisplayer.setPos(xCenter, yCenter);
 
 	ui->graphicsView->setSceneRect(0, 0, controlWidth, controlHeight);
-	ui->graphicsView->scene()->addRect(0, 0, controlWidth, controlHeight, QPen(Qt::red));
+	// ui->graphicsView->scene()->addRect(0, 0, controlWidth, controlHeight, QPen(Qt::red)); todo remove this comment
 }
 
 
