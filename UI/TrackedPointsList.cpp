@@ -7,6 +7,7 @@
 #include <QDebug>
 #include <QLineEdit>
 #include <QColorDialog>
+#include <QMenu>
 
 #include "ClickableLabel.h"
 #include "ScrollableGraphicsView.h"
@@ -32,6 +33,13 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	QWidget* pointListItemWidget = new QWidget(this); // todo: warning possible double deletion
 	pointListItemWidget->setContentsMargins(1, 1, 1, 1);
 	pointListItemWidget->setStyleSheet(QString("QWidget { border-top: 0 solid rgb(69, 69, 69); border-bottom: 1 solid rgb(69, 69, 69);}"));
+	pointListItemWidget->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(pointListItemWidget, &QWidget::customContextMenuRequested, this, [pointListItemWidget](const QPoint& pos)
+	{
+			QMenu* menu = new QMenu(pointListItemWidget);
+			menu->addAction(new QAction("Remove", pointListItemWidget));
+			menu->popup(pointListItemWidget->mapToGlobal(pos));
+	});
 
 	// 2. Create the text field to edit its name.
 	QLineEdit* pointNameDisplayer = new QLineEdit(point.GetName(), pointListItemWidget);
