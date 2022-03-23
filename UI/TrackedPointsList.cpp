@@ -109,13 +109,18 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	layout->addItem(spacer);
 	layout->addWidget(visibilityDisplayer);
 
-	// 6. Add the layout! Phew!
+	// 6. Remove the spacer and clear the UI list.
 	m_pointsListLayout->removeItem(m_listSpacer);
-	m_pointsListLayout->addWidget(pointListItemWidget);
-	m_pointsListLayout->addItem(m_listSpacer);
+	for (auto* wgt : m_pointDisplayers)
+		m_pointsListLayout->removeWidget(wgt);
 
 	// 7. Add the widget in the displayers list.
-	m_pointDisplayers.push_back(pointListItemWidget);
+	m_pointDisplayers.insert(point.GetPointIndex(), pointListItemWidget);
+	
+	// 7. Rebuild the list and add the final spacer.
+	for (auto* wgt : m_pointDisplayers)
+		m_pointsListLayout->addWidget(wgt);
+	m_pointsListLayout->addItem(m_listSpacer);
 }
 
 void TrackedPointsList::RemoveTrackedPoint(const int pointIndex)

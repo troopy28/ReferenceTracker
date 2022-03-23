@@ -96,6 +96,7 @@ namespace Data
 		MarkDirty();
 		for (const auto& pt : m_trackedPoints)
 			qDebug() << pt->GetName() << ":" << pt->GetPointIndex();
+		qDebug() << "- - - - - -";
 		emit TrackedPointAdded(*m_trackedPoints[index]);
 		return *m_trackedPoints[index];
 	}
@@ -110,6 +111,7 @@ namespace Data
 		}
 		for (const auto& pt : m_trackedPoints)
 			qDebug() << pt->GetName() << ":" << pt->GetPointIndex();
+		qDebug() << "- - - - - -";
 		MarkDirty();
 		emit TrackedPointRemoved(index);
 	}
@@ -127,7 +129,9 @@ namespace Data
 
 		for (const auto& pt : m_trackedPoints)
 			qDebug() << pt->GetName() << ":" << pt->GetPointIndex();
+		qDebug() << "- - - - - -";
 
+		emit TrackedPointAdded(*m_trackedPoints[index]);
 		return *m_trackedPoints[index];	
 	}
 
