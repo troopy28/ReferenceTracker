@@ -66,7 +66,8 @@ namespace Data
 		TrackedPoint& CreateTrackedPoint();
 		TrackedPoint& CreateTrackedPoint(QString name, int index);
 		void RemoveTrackedPoint(int index);
-		_NODISCARD const QVector<TrackedPoint>& GetTrackedPoints() const;
+		TrackedPoint& InsertTrackedPoint(std::unique_ptr<TrackedPoint> point);
+		_NODISCARD const std::vector<std::unique_ptr<TrackedPoint>>& GetTrackedPoints() const;
 		_NODISCARD const TrailLength& GetTrailLength() const;
 		_NODISCARD const QVector<int>& GetActivePointIndices() const;
 		void SetActive(const TrackedPoint& point, bool active = true);
@@ -81,7 +82,7 @@ namespace Data
 	signals:
 		void TrackedPointAdded(TrackedPoint& addedPoint);
 		void TrackedPointRemoved(int pointIndex);
-		void TrackedPointsListChanged(const QVector<TrackedPoint>& pointsList);
+		void TrackedPointsListChanged(const std::vector<TrackedPoint>& pointsList);
 		void TrailLengthChanged(const TrailLength& newLength);
 		void DocumentDirtinessChanged();
 
@@ -113,8 +114,10 @@ namespace Data
 		bool m_dirty;
 		/**
 		 * \brief List of points of interest on the image.
+		 * Cannot use a QVector here, since they require their elements
+		 * to be copiable (which std::unique_ptr is not).
 		 */
-		QVector<TrackedPoint> m_trackedPoints;
+		std::vector<std::unique_ptr<TrackedPoint>> m_trackedPoints;
 		/**
 		 * \brief Object managing the currently loaded video.
 		 */

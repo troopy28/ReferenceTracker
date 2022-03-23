@@ -19,4 +19,16 @@ namespace Actions
 		Data::Document& m_document;
 	};
 
+	class RemoveTrackedPointCommand final : public QUndoCommand
+	{
+	public:
+		explicit RemoveTrackedPointCommand(Data::Document& document, int pointIndex);
+		void redo() override;
+		void undo() override;
+
+	private:
+		Data::Document& m_document;
+		std::unique_ptr<Data::TrackedPoint> m_point;
+	};
+
 }

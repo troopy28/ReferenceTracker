@@ -1,13 +1,15 @@
 #include "TrackedPoint.h"
 #include <QDataStream>
+#include <QDebug>
 
 namespace Data
 {
-	TrackedPoint::TrackedPoint(QString name, const int pointIndex) :
-		m_name(std::move(name)),
+#if 0
+	TrackedPoint::TrackedPoint() :
+		m_name(),
 		m_keyframes(),
-		m_color(static_cast<Qt::GlobalColor>(static_cast<int>(Qt::black) + ((pointIndex + 5) % 13))),
-		m_index(pointIndex),
+		m_color(Qt::red),
+		m_index(-1),
 		m_showInViewport(true)
 	{
 	}
@@ -19,15 +21,7 @@ namespace Data
 		m_index(other.m_index),
 		m_showInViewport(other.m_showInViewport)
 	{
-	}
-
-	TrackedPoint::TrackedPoint(TrackedPoint&& other) noexcept :
-		m_name(std::move(other.m_name)),
-		m_keyframes(std::move(other.m_keyframes)),
-		m_color(std::move(other.m_color)),
-		m_index(other.m_index),
-		m_showInViewport(other.m_showInViewport)
-	{
+		qDebug() << "Point copied";
 	}
 
 	TrackedPoint& TrackedPoint::operator=(const TrackedPoint& other)
@@ -39,6 +33,28 @@ namespace Data
 		m_showInViewport = other.m_showInViewport;
 		return *this;
 	}
+
+#endif
+
+	TrackedPoint::TrackedPoint(QString name, const int pointIndex) :
+		m_name(std::move(name)),
+		m_keyframes(),
+		m_color(static_cast<Qt::GlobalColor>(static_cast<int>(Qt::black) + ((pointIndex + 5) % 13))),
+		m_index(pointIndex),
+		m_showInViewport(true)
+	{
+	}
+
+
+	TrackedPoint::TrackedPoint(TrackedPoint&& other) noexcept :
+		m_name(std::move(other.m_name)),
+		m_keyframes(std::move(other.m_keyframes)),
+		m_color(std::move(other.m_color)),
+		m_index(other.m_index),
+		m_showInViewport(other.m_showInViewport)
+	{
+	}
+
 
 	TrackedPoint& TrackedPoint::operator=(TrackedPoint&& other) noexcept
 	{
@@ -84,6 +100,11 @@ namespace Data
 	const QString& TrackedPoint::GetName() const
 	{
 		return m_name;
+	}
+
+	void TrackedPoint::SetPointIndex(const int index)
+	{
+		m_index = index;
 	}
 
 	int TrackedPoint::GetPointIndex() const
@@ -142,5 +163,14 @@ namespace Data
 			m_keyframes[key] = keyframe;
 		}
 
+	}
+
+	std::unique_ptr<TrackedPoint> TrackedPoint::GetCopy() const
+	{
+		std::unique_ptr<TrackedPoint> point = std::make_unique<TrackedPoint>(m_name, m_index);
+		point->m_color = m_color;
+		point->m_keyframes = m_keyframes; // note: QHash is copy on write
+		point->m_showInViewport = m_showInViewport;
+		return point;
 	}
 }

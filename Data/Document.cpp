@@ -81,27 +81,57 @@ namespace Data
 
 	TrackedPoint& Document::CreateTrackedPoint()
 	{
-		const int pointIndex = m_trackedPoints.size();
+		const int pointIndex = static_cast<int>(m_trackedPoints.size());
 		const QString pointName = "Point " + QString::number(pointIndex + 1);
 		return CreateTrackedPoint(pointName, pointIndex);
 	}
 
 	TrackedPoint& Document::CreateTrackedPoint(QString name, const int index)
 	{
-		m_trackedPoints.push_back(TrackedPoint(std::move(name), index));
+		m_trackedPoints.insert(m_trackedPoints.begin() + index, std::make_unique<TrackedPoint>(std::move(name), index));
+		for(size_t i = index + 1; i < m_trackedPoints.size(); i++)
+		{
+			m_trackedPoints[i]->SetPointIndex(static_cast<int>(i));
+		}
 		MarkDirty();
-		emit TrackedPointAdded(m_trackedPoints.last());
-		return m_trackedPoints.last();
+		for (const auto& pt : m_trackedPoints)
+			qDebug() << pt->GetName() << ":" << pt->GetPointIndex();
+		emit TrackedPointAdded(*m_trackedPoints[index]);
+		return *m_trackedPoints[index];
 	}
 
 	void Document::RemoveTrackedPoint(const int index)
 	{
-		m_trackedPoints.removeAt(index);
+		qDebug() << "Was asked to remove point with index " << index;
+		m_trackedPoints.erase(m_trackedPoints.begin() + index);
+		for (size_t i = index; i < m_trackedPoints.size(); i++)
+		{
+			m_trackedPoints[i]->SetPointIndex(m_trackedPoints[i]->GetPointIndex() - 1);
+		}
+		for (const auto& pt : m_trackedPoints)
+			qDebug() << pt->GetName() << ":" << pt->GetPointIndex();
 		MarkDirty();
 		emit TrackedPointRemoved(index);
 	}
 
-	const QVector<TrackedPoint>& Document::GetTrackedPoints() const
+	TrackedPoint& Document::InsertTrackedPoint(std::unique_ptr<TrackedPoint> point)
+	{
+		// Copy the index, since there is no guarantee in the order of execution of the
+		// arguments (C++ 17).
+		const int index = point->GetPointIndex();
+		m_trackedPoints.insert(m_trackedPoints .begin() + index, std::move(point));
+		for (size_t i = index + 1; i < m_trackedPoints.size(); i++)
+		{
+			m_trackedPoints[i]->SetPointIndex(static_cast<int>(i));
+		}
+
+		for (const auto& pt : m_trackedPoints)
+			qDebug() << pt->GetName() << ":" << pt->GetPointIndex();
+
+		return *m_trackedPoints[index];	
+	}
+
+	const std::vector<std::unique_ptr<TrackedPoint>>& Document::GetTrackedPoints() const
 	{
 		return m_trackedPoints;
 	}
@@ -185,9 +215,9 @@ namespace Data
 
 		// Save the tracked points.
 		out << static_cast<int32_t>(m_trackedPoints.size());
-		for (const TrackedPoint& trackedPoint : m_trackedPoints)
+		for (const std::unique_ptr<TrackedPoint>& trackedPoint : m_trackedPoints)
 		{
-			trackedPoint.Save(out);
+			trackedPoint->Save(out);
 		}
 
 		// Save the active point indices.
@@ -211,8 +241,7 @@ namespace Data
 		QDataStream in(&file);
 
 		m_filePath = std::nullopt;
-		m_activePointIndices.clear();
-		m_trackedPoints.clear();
+		ClearDocument();
 
 		// Load the header.
 		int32_t dataVersion;
@@ -235,7 +264,6 @@ namespace Data
 		// Load the tracked points.
 		int32_t trackedPointsCount;
 		in >> trackedPointsCount;
-		m_trackedPoints.reserve(trackedPointsCount);
 		for (int i = 0; i < trackedPointsCount; i++)
 		{
 			QString tpName;
@@ -276,12 +304,13 @@ namespace Data
 
 	void Document::ClearDocument()
 	{
-		QMutableVectorIterator<TrackedPoint> trptIt(m_trackedPoints);
-		while(trptIt.hasNext())
-		{
-			trptIt.remove();
-		}
+		// Important: remove using RemoveTrackedPoint.
+		// This is so that the correct signals are emitted (otherwise
+		// the UI won't remove the corresponding UI elements).
+		while (!m_trackedPoints.empty())
+			RemoveTrackedPoint(0);
 
-
+		// Todo: probably the same as for tracked points.
+		m_activePointIndices.clear();
 	}
 }

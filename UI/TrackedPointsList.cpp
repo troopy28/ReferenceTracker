@@ -34,11 +34,18 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	pointListItemWidget->setContentsMargins(1, 1, 1, 1);
 	pointListItemWidget->setStyleSheet(QString("QWidget { border-top: 0 solid rgb(69, 69, 69); border-bottom: 1 solid rgb(69, 69, 69);}"));
 	pointListItemWidget->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(pointListItemWidget, &QWidget::customContextMenuRequested, this, [pointListItemWidget](const QPoint& pos)
+
+	connect(pointListItemWidget, &QWidget::customContextMenuRequested, this, [pointListItemWidget, this, &point](const QPoint& pos)
 	{
-			QMenu* menu = new QMenu(pointListItemWidget);
-			menu->addAction(new QAction("Remove", pointListItemWidget));
+			QMenu* menu = new QMenu();
+			QAction* removeAction = new QAction("Remove");
+			menu->addAction(removeAction);
 			menu->popup(pointListItemWidget->mapToGlobal(pos));
+			connect(removeAction, &QAction::triggered, pointListItemWidget, [this, &point]
+				{
+					const int pointIndex = point.GetPointIndex();
+					m_undoStack.push(new Actions::RemoveTrackedPointCommand(m_document, pointIndex));
+				});
 	});
 
 	// 2. Create the text field to edit its name.
@@ -55,15 +62,15 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	colorPixmap.fill(point.GetColor());
 	colorDisplayer->setPixmap(colorPixmap);
 
-	// Note: important to use the overload allowing to specify the "this" as the context, so that when 
-	// "this" gets deleted, the lambda gets disconnected and deleted too (handled in QObject's destructor).
-	connect(&point, &Data::TrackedPoint::ColorChanged, this, [colorDisplayer](const QColor& col)
+	// Note: important to use the overload allowing to specify the "pointListItemWidget" as the context, so that when 
+	//it (the widget) gets deleted, the lambda gets disconnected and deleted too (handled in QObject's destructor).
+	connect(&point, &Data::TrackedPoint::ColorChanged, pointListItemWidget, [colorDisplayer](const QColor& col)
 		{
 			QPixmap newPixmap(colorSquareSize, colorSquareSize);
 			newPixmap.fill(col);
 			colorDisplayer->setPixmap(newPixmap);
 		});
-	connect(colorDisplayer, &ClickableLabel::clicked, this, [&point]
+	connect(colorDisplayer, &ClickableLabel::clicked, pointListItemWidget, [&point]
 		{
 			// When the color square is clicked: change the color.
 			const QColor currentColor = point.GetColor();
@@ -83,12 +90,12 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	visibilityDisplayer->setMinimumHeight(colorSquareSize);
 	const QPixmap visibilityPixmap(":/Resources/show.png");
 	visibilityDisplayer->setPixmap(visibilityPixmap.scaled(colorSquareSize, colorSquareSize));
-	connect(&point, &Data::TrackedPoint::VisibilityChanged, this, [visibilityDisplayer](const bool visible)
+	connect(&point, &Data::TrackedPoint::VisibilityChanged, pointListItemWidget, [visibilityDisplayer](const bool visible)
 		{
 			const QPixmap newPixmap(visible ? QString(":/Resources/show.png") : QString(":/Resources/hide.png"));
 			visibilityDisplayer->setPixmap(newPixmap.scaled(colorSquareSize, colorSquareSize));
 		});
-	connect(visibilityDisplayer, &ClickableLabel::clicked, this, [&point]
+	connect(visibilityDisplayer, &ClickableLabel::clicked, pointListItemWidget, [&point]
 		{
 			point.SetVisibleInViewport(!point.IsVisibleInViewport());
 		});

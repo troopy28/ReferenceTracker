@@ -34,12 +34,14 @@ namespace Data
 		Q_OBJECT
 
 	public:
+		// TrackedPoint(); // Necessary for QVector.....
 		TrackedPoint(QString name, int pointIndex);
-		TrackedPoint(const TrackedPoint& other);
+		Q_DISABLE_COPY(TrackedPoint);
+		// TrackedPoint(const TrackedPoint& other);
 		TrackedPoint(TrackedPoint&& other) noexcept;
 		~TrackedPoint() override = default;
 
-		TrackedPoint& operator=(const TrackedPoint& other);
+		// TrackedPoint& operator=(const TrackedPoint& other);
 		TrackedPoint& operator=(TrackedPoint&& other) noexcept;
 
 		void AddKeyframe(const Keyframe& keyframe);
@@ -52,12 +54,20 @@ namespace Data
 		void SetName(const QString& name);
 		_NODISCARD const QString& GetName() const;
 
+		void SetPointIndex(int index);
 		_NODISCARD int GetPointIndex() const;
+
 		_NODISCARD bool IsVisibleInViewport() const;
 		void SetVisibleInViewport(bool visible);
 
 		void Save(QDataStream& out) const;
 		void Load(QDataStream& in);
+
+		/**
+		 * \brief Explicit copy method. Way way WAY less error-prone than copy constructors and all.
+		 * \return Copy of this tracked point.
+		 */
+		_NODISCARD std::unique_ptr<TrackedPoint> GetCopy() const;
 
 	signals:
 		void ColorChanged(const QColor& color);

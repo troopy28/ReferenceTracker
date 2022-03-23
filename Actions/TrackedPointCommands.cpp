@@ -2,6 +2,8 @@
 
 namespace Actions
 {
+#pragma region CreateTrackedPointCommand
+
 	CreateTrackedPointCommand::CreateTrackedPointCommand(Data::Document& document) :
 		m_document(document)
 	{
@@ -19,4 +21,28 @@ namespace Actions
 		m_document.RemoveTrackedPoint(m_document.GetTrackedPoints().size() - 1);
 		m_document.MarkDirty();
 	}
+
+
+#pragma endregion
+
+#pragma region CreateTrackedPointCommand
+
+	RemoveTrackedPointCommand::RemoveTrackedPointCommand(Data::Document& document, const int pointIndex) :
+		m_document(document),
+		m_point(m_document.GetTrackedPoints()[pointIndex]->GetCopy())
+	{
+	}
+
+	void RemoveTrackedPointCommand::redo()
+	{
+		m_document.RemoveTrackedPoint(m_point->GetPointIndex());
+	}
+
+	void RemoveTrackedPointCommand::undo()
+	{
+		m_document.InsertTrackedPoint(std::move(m_point));
+	}
+
+
+#pragma endregion
 }
