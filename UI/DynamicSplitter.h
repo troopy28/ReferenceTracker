@@ -27,6 +27,7 @@ public:
 	explicit DynamicSplitter(Qt::Orientation o, QWidget* parent = nullptr);
 	void Rotate();
 	void Swap();
+	void Collapse(int collapsedIndex);
 
 	void AddWidget(QWidget* widget);
 

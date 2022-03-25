@@ -184,3 +184,32 @@ QScrollBar::sub-line:horizontal, QScrollBar::sub-line:vertical {
     border: none;
     background: none;
 }
+
+
+
+/* Combo box. */
+
+QComboBox:item {
+    selection-background-color: transparent;
+    background-color: rgb(35, 35, 35);
+    color: rgb(170, 170, 170);
+    border-width: 0;
+}
+
+
+QComboBox:item:selected {
+    background-color: rgb(50, 50, 50);
+    color: rgb(170, 170, 170);
+}
+
+QComboBox:item::hover {
+    background-color: rgb(42, 42, 42);
+    color: rgb(170, 170, 170);
+}
+
+QComboBox::indicator {
+    background-color: transparent;
+    selection-background-color: transparent;
+    color: transparent;
+    selection-color: transparent;
+}

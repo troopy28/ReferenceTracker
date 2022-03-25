@@ -17,8 +17,10 @@ MainWindow::MainWindow(QWidget* parent) :
 	m_undoStack(),
 	ui(new Ui::MainWindow),
 	m_videoPlayer(new VideoPlayer(m_document.GetVideo(), this)),
+	m_automaticTrackingDisplay(new AutomaticTrackingDisplay(m_document, m_undoStack, m_trackingManager)),
 	m_trackedPointsList(new TrackedPointsList(m_document, m_undoStack, m_trackingManager, this)),
-	m_graphView(new GraphView(m_document, m_trackingManager, this))
+	m_graphView(new GraphView(m_document, m_trackingManager, this)),
+	m_statusLabel(new QLabel("", this))
 {
 	ui->setupUi(this);
 	
@@ -71,8 +73,14 @@ void MainWindow::ManualUiSetup()
 	DynamicSplitter* globalVerticalSplitter = new DynamicSplitter(Qt::Vertical, this);
 	globalVerticalSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
-	globalVerticalSplitter->AddWidget(m_videoPlayer);
+	/* Top half of the window. */
+	DynamicSplitter* topSplitter = new DynamicSplitter(Qt::Horizontal, this);
+	topSplitter->AddWidget(m_videoPlayer);
+	topSplitter->AddWidget(m_automaticTrackingDisplay);
+	topSplitter->Collapse(1);
+	globalVerticalSplitter->AddWidget(topSplitter);
 
+	/* Bottom half of the window. */
 	DynamicSplitter* bottomSplitter = new DynamicSplitter(Qt::Horizontal, this);
 	bottomSplitter->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
@@ -94,7 +102,6 @@ void MainWindow::ManualUiSetup()
 	GenerateRecentProjectsMenu();
 
 	// Status bar.
-	m_statusLabel = new QLabel("", this);
 	ui->statusbar->addWidget(m_statusLabel);
 }
 

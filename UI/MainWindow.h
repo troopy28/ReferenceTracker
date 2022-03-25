@@ -10,6 +10,7 @@
 #include "VideoPlayer.h"
 #include "TrackedPointsList.h"
 #include "GraphView.h"
+#include "AutomaticTrackingDisplay.h"
 
 namespace Ui {
 	class MainWindow;
@@ -59,6 +60,7 @@ private:
 	QUndoStack m_undoStack;
 	Ui::MainWindow* ui;
 	VideoPlayer* m_videoPlayer;
+	AutomaticTrackingDisplay* m_automaticTrackingDisplay;
 	TrackedPointsList* m_trackedPointsList;
 	GraphView* m_graphView;
 	QLabel* m_statusLabel;

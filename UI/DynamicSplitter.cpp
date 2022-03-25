@@ -56,6 +56,13 @@ void DynamicSplitter::Swap()
 	}
 }
 
+void DynamicSplitter::Collapse(const int collapsedIndex)
+{
+	QList<int> sz = sizes();
+	sz[collapsedIndex] = 0;
+	setSizes(sz);
+}
+
 void DynamicSplitter::AddWidget(QWidget* widget)
 {
 	addWidget(widget);
