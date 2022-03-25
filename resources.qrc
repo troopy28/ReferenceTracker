@@ -9,6 +9,8 @@
 		<file>Resources/play.png</file>
 		<file>Resources/show.png</file>
 		<file>Resources/hide.png</file>
+		<file>Resources/tracking_off.png</file>
+		<file>Resources/tracking_on.png</file>
 
 		<!-- Stylesheet. -->
 		<file>Resources/style.css</file>

@@ -71,7 +71,9 @@ namespace Data
 		_NODISCARD TrackedPoint& GetTrackedPoint(int index) const;
 		_NODISCARD const TrailLength& GetTrailLength() const;
 		_NODISCARD const QVector<int>& GetActivePointIndices() const;
+
 		void SetActive(const TrackedPoint& point, bool active = true);
+		_NODISCARD bool IsActive(int index) const;
 
 		Video& GetVideo();
 
@@ -86,6 +88,7 @@ namespace Data
 		void TrackedPointsListChanged(const std::vector<TrackedPoint>& pointsList);
 		void TrailLengthChanged(const TrailLength& newLength);
 		void DocumentDirtinessChanged();
+		void TrackPointActivationStateChanged(const TrackedPoint& addedPoint, bool isActive);
 
 	private:
 		/**

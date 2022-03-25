@@ -95,14 +95,36 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 
 	// 4. Create the spacer that goes between the name field and the other fields.
 	// The UI should look like:
-	// [color picker][name field] ------ spacer ------ [visible "checkbox"]
+	// [color picker][name field] ------ spacer ------ [enable tracking "checkbox"][visible "checkbox"]
 	QSpacerItem* spacer = new QSpacerItem(0, 0, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-	// 5. Create the show/hide "checkbox"".
+	// 5. Create the enable/disable tracking "checkbox".
+	ClickableLabel* trackingStateDisplayer = new ClickableLabel(pointListItemWidget);
+	trackingStateDisplayer->setStyleSheet(QString("QWidget { border-width: 0;} QWidget:hover { border-width: 0; color: rgb(170, 170, 170);}"));
+	trackingStateDisplayer->setMinimumWidth(colorSquareSize);
+	trackingStateDisplayer->setMinimumHeight(colorSquareSize);
+	trackingStateDisplayer->setToolTip("Use in Automatic Tracking");
+	const QPixmap trackingStatePixmap(":/Resources/tracking_off.png");
+	trackingStateDisplayer->setPixmap(trackingStatePixmap.scaled(colorSquareSize, colorSquareSize));
+	connect(&m_document, &Data::Document::TrackPointActivationStateChanged, pointListItemWidget, [trackingStateDisplayer, this, &point](const Data::TrackedPoint& tp, const bool visible)
+		{
+			if(point.GetPointIndex() == tp.GetPointIndex())
+			{
+				const QPixmap newPixmap(visible ? QString(":/Resources/tracking_on.png") : QString(":/Resources/tracking_off.png"));
+				trackingStateDisplayer->setPixmap(newPixmap.scaled(colorSquareSize, colorSquareSize));
+			}
+		});
+	connect(trackingStateDisplayer, &ClickableLabel::clicked, pointListItemWidget, [&point, this]
+		{
+			m_document.SetActive(point, !m_document.IsActive(point.GetPointIndex()));
+		});
+
+	// 6. Create the show/hide "checkbox".
 	ClickableLabel* visibilityDisplayer = new ClickableLabel(pointListItemWidget);
 	visibilityDisplayer->setStyleSheet(QString("QWidget { border-width: 0;} QWidget:hover { border-width: 0; color: rgb(170, 170, 170);}"));
 	visibilityDisplayer->setMinimumWidth(colorSquareSize);
 	visibilityDisplayer->setMinimumHeight(colorSquareSize);
+	trackingStateDisplayer->setToolTip("Show / Hide this point's data");
 	const QPixmap visibilityPixmap(":/Resources/show.png");
 	visibilityDisplayer->setPixmap(visibilityPixmap.scaled(colorSquareSize, colorSquareSize));
 	connect(&point, &Data::TrackedPoint::VisibilityChanged, pointListItemWidget, [visibilityDisplayer](const bool visible)
@@ -115,24 +137,26 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 			point.SetVisibleInViewport(!point.IsVisibleInViewport());
 		});
 
-	// 5. Set everything up.
+
+	// 7. Set everything up.
 	QHBoxLayout* layout = new QHBoxLayout(pointListItemWidget);
 	pointListItemWidget->setLayout(layout);
 	layout->setContentsMargins(1, 5, 1, 5);
 	layout->addWidget(colorDisplayer);
 	layout->addWidget(pointNameDisplayer);
 	layout->addItem(spacer);
+	layout->addWidget(trackingStateDisplayer);
 	layout->addWidget(visibilityDisplayer);
 
-	// 6. Remove the spacer and clear the UI list.
+	// 8. Remove the spacer and clear the UI list.
 	m_pointsListLayout->removeItem(m_listSpacer);
 	for (auto* wgt : m_pointDisplayers)
 		m_pointsListLayout->removeWidget(wgt);
 
-	// 7. Add the widget in the displayers list.
+	// 9. Add the widget in the displayers list.
 	m_pointDisplayers.insert(point.GetPointIndex(), pointListItemWidget);
 
-	// 7. Rebuild the list and add the final spacer.
+	// 10. Rebuild the list and add the final spacer.
 	for (auto* wgt : m_pointDisplayers)
 		m_pointsListLayout->addWidget(wgt);
 	m_pointsListLayout->addItem(m_listSpacer);

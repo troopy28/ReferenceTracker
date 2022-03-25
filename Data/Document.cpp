@@ -161,7 +161,13 @@ namespace Data
 			m_activePointIndices.push_back(point.GetPointIndex());
 		else
 			m_activePointIndices.removeOne(point.GetPointIndex());
+		emit TrackPointActivationStateChanged(point, active);
 		MarkDirty();
+	}
+
+	bool Document::IsActive(const int index) const
+	{
+		return m_activePointIndices.contains(index);
 	}
 
 	Video& Document::GetVideo()
@@ -291,6 +297,7 @@ namespace Data
 			int32_t index;
 			in >> index;
 			m_activePointIndices.push_back(index);
+			emit TrackPointActivationStateChanged(*m_trackedPoints[index].get(), true);
 		}
 
 		// Load the video.
