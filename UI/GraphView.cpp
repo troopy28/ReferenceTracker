@@ -20,12 +20,14 @@ T Lerp(const T a, const T b, const double f)
 	return static_cast<T>(static_cast<double>(a) + f * static_cast<double>(b - a));
 }
 
-GraphView::GraphView(Data::Document& document, QWidget* parent) :
+GraphView::GraphView(Data::Document& document, Tracking::TrackingManager& trackingManager, QWidget* parent) :
 	QWidget(parent),
 	m_document(document),
+	m_trackingManager(trackingManager),
 	m_headerPixmap(width(), height()),
-	m_curvesPixmap(),
+	m_curvesPixmap(width(), height()),
 	m_requireRedraw(true),
+	m_requireCurveRedraw(true),
 	m_playheadPosition(0),
 	m_movingPlayhead(false),
 	m_targetPlayheadPosition(0),
@@ -33,6 +35,7 @@ GraphView::GraphView(Data::Document& document, QWidget* parent) :
 {
 	connect(&m_document.GetVideo(), &Data::Video::FrameChanged, this, &GraphView::MovePlayheadToFrame);
 	connect(&m_document.GetVideo(), &Data::Video::VideoLoaded, this, &GraphView::ForceRedraw);
+	connect(&m_trackingManager, &Tracking::TrackingManager::KeyframeChanged, this, [this] {m_requireCurveRedraw = true; repaint(); });
 }
 
 
@@ -142,9 +145,10 @@ void GraphView::ForceRedraw()
 	repaint();
 }
 
+static constexpr int HEADER_HEIGHT = 41;
+
 void GraphView::DrawHeader(QPainter& widgetPainter)
 {
-	static constexpr int headerHeight = 41;
 	static constexpr int graduationsHeight = 15;
 	static constexpr int smallGraduationHeight = graduationsHeight / 2;
 	static constexpr int minimumMinigraduationSeparation = 3;
@@ -170,7 +174,7 @@ void GraphView::DrawHeader(QPainter& widgetPainter)
 
 	// 1. Draw the darker border.
 	pixmapPainter.setPen(QPen(dark, 1));
-	pixmapPainter.drawLine(0, headerHeight, width(), headerHeight);
+	pixmapPainter.drawLine(0, HEADER_HEIGHT, width(), HEADER_HEIGHT);
 
 	// 2. Draw the graduations.
 	const Data::Video& video = m_document.GetVideo();
@@ -202,9 +206,9 @@ void GraphView::DrawHeader(QPainter& widgetPainter)
 			const int textXpos = xPos - textSize.width() / 2;
 			if (textXpos - lastTextDrawX > minimumTextSeparation)
 			{
-				pixmapPainter.drawText(textXpos, headerHeight - textSize.height() + 3, timeStr);
+				pixmapPainter.drawText(textXpos, HEADER_HEIGHT - textSize.height() + 3, timeStr);
 				lastTextDrawX = xPos + textSize.width() / 2;
-				pixmapPainter.drawLine(xPos, headerHeight, xPos, height());
+				pixmapPainter.drawLine(xPos, HEADER_HEIGHT, xPos, height());
 			}
 		}
 	}
@@ -212,9 +216,47 @@ void GraphView::DrawHeader(QPainter& widgetPainter)
 	widgetPainter.drawPixmap(0, 0, width(), height(), m_headerPixmap);
 }
 
-void GraphView::DrawCurves(QPainter& painter)
+void GraphView::DrawCurves(QPainter& widgetPainter)
 {
-	// todo
+	if (!m_requireRedraw && !m_requireCurveRedraw)
+	{
+		widgetPainter.drawPixmap(0, 0, width(), height(), m_curvesPixmap);
+		return;
+	}
+
+	m_curvesPixmap = m_curvesPixmap.scaled(width(), height());
+	m_curvesPixmap.fill(Qt::transparent);
+	QPainter pixmapPainter(&m_curvesPixmap);
+	pixmapPainter.setRenderHint(QPainter::Antialiasing);
+
+	const std::vector<std::unique_ptr<Data::TrackedPoint>>& trackedPoints = m_document.GetTrackedPoints();
+	const int ctrlHeight = height();
+	const int videoWidth = m_document.GetVideo().GetWidth();
+	const int videoHeight = m_document.GetVideo().GetHeight();
+	for (const auto& trackedPoint : trackedPoints)
+	{
+		std::optional<std::array<QPoint, 2>> previousPoints = std::nullopt;
+		for (const auto& [position, frameIndex] : trackedPoint->GetKeyframes())
+		{
+			pixmapPainter.setPen(QPen(trackedPoint->GetColor(), 1, Qt::SolidLine)); // Solid line for points and X curves.
+			const int xPos = frameToControlPos(frameIndex);
+			const int yxPos = static_cast<int>(static_cast<float>(position.x()) * static_cast<float>(ctrlHeight - HEADER_HEIGHT) / static_cast<float>(videoWidth)) + HEADER_HEIGHT;
+			const int yyPos = static_cast<int>(static_cast<float>(position.y()) * static_cast<float>(ctrlHeight - HEADER_HEIGHT) / static_cast<float>(videoHeight)) + HEADER_HEIGHT;
+			pixmapPainter.drawEllipse(xPos, yxPos, 3, 3);
+			pixmapPainter.drawEllipse(xPos, yyPos, 3, 3);
+
+			if (previousPoints.has_value())
+			{
+				pixmapPainter.drawLine(previousPoints.value()[0], QPoint(xPos, yxPos));
+				pixmapPainter.setPen(QPen(trackedPoint->GetColor(), 1, Qt::DashLine)); // Dash line for Y curves.
+				pixmapPainter.drawLine(previousPoints.value()[1], QPoint(xPos, yyPos));
+			}
+			previousPoints = { QPoint(xPos, yxPos), QPoint(xPos, yyPos) };
+		}
+	}
+
+	widgetPainter.drawPixmap(0, 0, width(), height(), m_curvesPixmap);
+	m_requireCurveRedraw = false;
 }
 
 void GraphView::DrawPlayhead(QPainter& painter) const

@@ -38,6 +38,10 @@ add_executable (ReferenceTracker
     "Data/Document.cpp" 
     "Data/Document.h"
 
+    # Tracking.
+    "Tracking/TrackingManager.h"
+    "Tracking/TrackingManager.cpp"
+
     # Les actions.
     "Actions/TrackedPointCommands.h"
     "Actions/TrackedPointCommands.cpp"
@@ -70,7 +74,7 @@ add_executable (ReferenceTracker
     "UI/MainWindow.h"
 
     # Le fichier de démarrage.
-    "main.cpp"     )
+    "main.cpp")
 
 target_link_libraries(ReferenceTracker Qt5::Widgets Qt5::Multimedia Qt5::3DCore)
 target_link_libraries(ReferenceTracker ${OpenCV_LIBS})

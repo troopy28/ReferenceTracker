@@ -93,7 +93,7 @@ namespace Data
 		return true;
 	}
 
-	void Video::ReadNextFrame()
+	void Video::ReadNextFrame(const bool forceJump)
 	{
 		const int nextIndex = m_currentFrameIndex + 1;
 		// If we are already at the last frame: do nothing.
@@ -106,7 +106,7 @@ namespace Data
 		m_capture >> m_frameMat;
 		m_currentFrameIndex++;
 
-		emit FrameChanged(m_currentFrameIndex, false);
+		emit FrameChanged(m_currentFrameIndex, forceJump);
 	}
 
 	void Video::ReadFrameAtIndex(const int& index)
@@ -146,7 +146,7 @@ namespace Data
 		return m_width;
 	}
 
-	int Video::GetHeigth() const
+	int Video::GetHeight() const
 	{
 		return m_height;
 	}

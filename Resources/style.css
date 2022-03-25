@@ -74,7 +74,10 @@ QStatusBar::item {
     color: rgb(170, 170, 170);
 }
 
-
+QStatusBar QWidget {
+    background-color: rgb(20, 20, 20);
+    color: rgb(170, 170, 170);
+}
 
 /*** QPushButton. ***/
 

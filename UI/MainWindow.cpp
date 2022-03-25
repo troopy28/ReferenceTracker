@@ -13,13 +13,15 @@ MainWindow::MainWindow(QWidget* parent) :
 	QMainWindow(parent),
 	m_document(),
 	m_typeSafeSettings(),
+	m_trackingManager(m_document),
 	m_undoStack(),
 	ui(new Ui::MainWindow),
 	m_videoPlayer(new VideoPlayer(m_document.GetVideo(), this)),
-	m_trackedPointsList(new TrackedPointsList(m_document, m_undoStack, this)),
-	m_graphView(new GraphView(m_document, this))
+	m_trackedPointsList(new TrackedPointsList(m_document, m_undoStack, m_trackingManager, this)),
+	m_graphView(new GraphView(m_document, m_trackingManager, this))
 {
 	ui->setupUi(this);
+	
 	ManualUiSetup();
 	ApplyUiSettings();
 
@@ -36,6 +38,11 @@ MainWindow::MainWindow(QWidget* parent) :
 
 	// Document.
 	connect(&m_document, &Data::Document::DocumentDirtinessChanged, this, &MainWindow::ComputeWindowTitle);
+
+	// Tracking manager.
+	connect(m_videoPlayer, &VideoPlayer::ImageClicked, &m_trackingManager, &Tracking::TrackingManager::OnImageClicked);
+	connect(&m_trackingManager, &Tracking::TrackingManager::ManualTrackingStarted, this, [this](const QString& pointName) {m_statusLabel->setText(QString("Manual tracking started for ") + pointName + "."); });
+	connect(&m_trackingManager, &Tracking::TrackingManager::ManualTrackingEnded, this, [this] {m_statusLabel->setText(QString("Manual tracking stopped.")); });
 
 	m_videoPlayer->Render(0);
 }
@@ -85,6 +92,10 @@ void MainWindow::ManualUiSetup()
 	// Dynamic menus setup.
 	GenerateRecentVideosMenu();
 	GenerateRecentProjectsMenu();
+
+	// Status bar.
+	m_statusLabel = new QLabel("", this);
+	ui->statusbar->addWidget(m_statusLabel);
 }
 
 void MainWindow::ApplyUiSettings()

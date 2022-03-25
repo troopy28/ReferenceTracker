@@ -13,9 +13,10 @@
 #include "ScrollableGraphicsView.h"
 #include "../Actions/TrackedPointCommands.h"
 
-TrackedPointsList::TrackedPointsList(Data::Document& document, QUndoStack& undoStack, QWidget* parent) :
+TrackedPointsList::TrackedPointsList(Data::Document& document, QUndoStack& undoStack, Tracking::TrackingManager& trackingManager, QWidget* parent) :
 	QWidget(parent),
 	m_document(document),
+	m_trackingManager(trackingManager),
 	m_undoStack(undoStack),
 	m_pointsListLayout(nullptr),
 	m_listSpacer(new QSpacerItem(0, 0, QSizePolicy::Minimum, QSizePolicy::Expanding)),
@@ -36,17 +37,31 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	pointListItemWidget->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	connect(pointListItemWidget, &QWidget::customContextMenuRequested, this, [pointListItemWidget, this, &point](const QPoint& pos)
-	{
+		{
 			QMenu* menu = new QMenu();
+
+			// Remove.
 			QAction* removeAction = new QAction("Remove");
-			menu->addAction(removeAction);
-			menu->popup(pointListItemWidget->mapToGlobal(pos));
 			connect(removeAction, &QAction::triggered, pointListItemWidget, [this, &point]
 				{
 					const int pointIndex = point.GetPointIndex();
 					m_undoStack.push(new Actions::RemoveTrackedPointCommand(m_document, pointIndex));
 				});
-	});
+			menu->addAction(removeAction);
+
+			// Track manually.
+			QAction* trackAction = new QAction("Track Manually");
+			connect(trackAction, &QAction::triggered, pointListItemWidget, [this, &point]
+				{
+					const int pointIndex = point.GetPointIndex();
+					m_trackingManager.StartManualTracking(pointIndex);
+				});
+			menu->addAction(trackAction);
+
+			// Spawn the menu.
+			menu->popup(pointListItemWidget->mapToGlobal(pos));
+
+		});
 
 	// 2. Create the text field to edit its name.
 	QLineEdit* pointNameDisplayer = new QLineEdit(point.GetName(), pointListItemWidget);
@@ -116,7 +131,7 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 
 	// 7. Add the widget in the displayers list.
 	m_pointDisplayers.insert(point.GetPointIndex(), pointListItemWidget);
-	
+
 	// 7. Rebuild the list and add the final spacer.
 	for (auto* wgt : m_pointDisplayers)
 		m_pointsListLayout->addWidget(wgt);

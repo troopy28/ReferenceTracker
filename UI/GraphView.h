@@ -5,13 +5,14 @@
 #include <QPixmap>
 
 #include "../Data/Document.h"
+#include "../Tracking/TrackingManager.h"
 
 class GraphView : public QWidget
 {
 	Q_OBJECT
 
 public:
-	explicit GraphView(Data::Document& document, QWidget* parent = nullptr);
+	explicit GraphView(Data::Document& document, Tracking::TrackingManager& trackingManager, QWidget* parent = nullptr);
 
 protected:
 	void paintEvent(QPaintEvent* evt) override;
@@ -26,16 +27,18 @@ private:
 
 	void ForceRedraw();
 	void DrawHeader(QPainter& widgetPainter);
-	void DrawCurves(QPainter& painter);
+	void DrawCurves(QPainter& widgetPainter);
 	void DrawPlayhead(QPainter& painter) const;
 
 	_NODISCARD int frameToControlPos(int frame) const;
 	_NODISCARD int controlPosToFrame(int controlPos) const;
 
 	Data::Document& m_document;
+	Tracking::TrackingManager& m_trackingManager;
 	QPixmap m_headerPixmap;
 	QPixmap m_curvesPixmap;
 	bool m_requireRedraw;
+	bool m_requireCurveRedraw;
 	int m_playheadPosition;
 	bool m_movingPlayhead;
 	int m_targetPlayheadPosition;

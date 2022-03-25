@@ -2,7 +2,7 @@
 
 #include <QVector2D>
 #include <QColor>
-#include <QHash>
+#include <QMap>
 #include <QObject>
 
 namespace Data
@@ -17,11 +17,29 @@ namespace Data
 		/**
 		 * \brief Position of the point on the screen.
 		 */
-		QVector2D position{ 0.0f, 0.0f };
+		QPoint position{ 0, 0 };
 		/**
 		 * \brief Index at which the point is at this position.
 		 */
 		int frameIndex{ 0 };
+	};
+
+	class NoKeyframeFoundException final : public std::exception
+	{
+	public:
+		NoKeyframeFoundException(const QString& trackedPointName, const int frameIndex) :
+			std::exception(),
+			m_customMessage((QString("Could not find any keyframe for the point ") + trackedPointName + " at frame " + QString::number(frameIndex)).toStdString() + " or before.")
+		{
+		}
+
+		_NODISCARD char const* what() const override
+		{
+			return m_customMessage.c_str();
+		}
+
+	private:
+		std::string m_customMessage;
 	};
 
 	/**
@@ -45,8 +63,23 @@ namespace Data
 		TrackedPoint& operator=(TrackedPoint&& other) noexcept;
 
 		void AddKeyframe(const Keyframe& keyframe);
-		Keyframe& GetKeyframe(int index);
-		_NODISCARD const QHash<int, Keyframe>& GetKeyframes() const;
+		/**
+		 * \brief Used to return the keyframe at the exact index. If there is no keyframe,
+		 * there will be an error.
+		 * \param index Index of the keyframe.
+		 * \return Keyframe at the specified index.
+		 */
+		_NODISCARD const Keyframe& GetKeyframe(int index); // todo: rn it's unused. Remove?
+		/**
+		 * \brief Used to return the first keyframe that can be found starting from the given
+		 * index, and going backwards. This is used for instance by trackers to know which
+		 * position to use to start tracking.
+		 * If no keyframe is found, there will be a 
+		 * \param index Index of the first frame to try.
+		 * \return Return the first found keyframe.
+		 */
+		const Keyframe& GetLastKeyframe(int index);
+		_NODISCARD const QMap<int, Keyframe>& GetKeyframes() const;
 
 		_NODISCARD const QColor& GetColor() const;
 		void SetColor(const QColor& color);
@@ -72,6 +105,7 @@ namespace Data
 	signals:
 		void ColorChanged(const QColor& color);
 		void VisibilityChanged(const bool& visible);
+		void KeyframesChanged(QList<Keyframe> keyframes);
 
 	private:
 		/**
@@ -82,10 +116,12 @@ namespace Data
 		/**
 		 * \brief Map of the different keyframes of this tracked point.
 		 * Key: frame index. Value: the keyframe.
+		 * Use a map and not a hash because we're often interested in getting the
+		 * SORTED keys.
 		 * This structure allows to have a sparse storage of the keyframes.
 		 * This saves memory for large videos.
 		 */
-		QHash<int, Keyframe> m_keyframes;
+		QMap<int, Keyframe> m_keyframes;
 		/**
 		 * \brief Color of the tracked point in the UI.
 		 */

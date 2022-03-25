@@ -20,7 +20,7 @@ namespace Data
 		_NODISCARD const cv::Mat& GetCurrentImage() const;
 		_NODISCARD int GetCurrentFrameIndex() const;
 		_NODISCARD int GetWidth() const;
-		_NODISCARD int GetHeigth() const;
+		_NODISCARD int GetHeight() const;
 		_NODISCARD int GetFrameRate() const;
 		_NODISCARD int GetFrameCount() const;
 		_NODISCARD bool IsLoaded() const;
@@ -45,7 +45,7 @@ namespace Data
 		 * \brief Reads the video frame right after the last frame that
 		 * was read.
 		 */
-		void ReadNextFrame();
+		void ReadNextFrame(bool forceJump = false);
 
 	signals:
 		/**

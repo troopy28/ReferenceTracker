@@ -66,17 +66,35 @@ namespace Data
 		return *this;
 	}
 
-	void TrackedPoint::AddKeyframe(const Keyframe& keyframe)
+	void TrackedPoint::AddKeyframe(const Keyframe& keyframe) 
 	{
 		m_keyframes[keyframe.frameIndex] = keyframe;
+		emit KeyframesChanged(m_keyframes.values());
+		qDebug() << "Added keyframe at frame " << keyframe.frameIndex << " at position " << keyframe.position;
 	}
 
-	Keyframe& TrackedPoint::GetKeyframe(const int index)
+	const Keyframe& TrackedPoint::GetKeyframe(const int index)
 	{
-		return m_keyframes[index];
+		const auto it = m_keyframes.find(index);
+		if (it != m_keyframes.end())
+			return it.value();
+		throw NoKeyframeFoundException(m_name, index);
 	}
 
-	const QHash<int, Keyframe>& TrackedPoint::GetKeyframes() const
+	const Keyframe& TrackedPoint::GetLastKeyframe(const int index)
+	{
+		int currentIndex = index;
+		while(currentIndex >= 0)
+		{
+			const auto it = m_keyframes.find(currentIndex);
+			if (it != m_keyframes.end())
+				return it.value();
+			currentIndex--;
+		}
+		throw NoKeyframeFoundException(m_name, index);
+	}
+
+	const QMap<int, Keyframe>& TrackedPoint::GetKeyframes() const
 	{
 		return m_keyframes;
 	}
@@ -151,7 +169,6 @@ namespace Data
 
 		int32_t keyframesCount;
 		in >> keyframesCount;
-		m_keyframes.reserve(keyframesCount);
 		for(int i = 0; i < keyframesCount; i++)
 		{
 			int32_t key;
@@ -169,7 +186,7 @@ namespace Data
 	{
 		std::unique_ptr<TrackedPoint> point = std::make_unique<TrackedPoint>(m_name, m_index);
 		point->m_color = m_color;
-		point->m_keyframes = m_keyframes; // note: QHash is copy on write
+		point->m_keyframes = m_keyframes; // note: QMap is copy on write
 		point->m_showInViewport = m_showInViewport;
 		return point;
 	}

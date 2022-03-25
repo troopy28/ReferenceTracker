@@ -2,9 +2,11 @@
 #define MAINWINDOW_H
 
 #include <QMainWindow>
+#include <QLabel>
 
 #include "TypeSafeSettings.h"
 #include "../Data/Document.h"
+#include "../Tracking/TrackingManager.h"
 #include "VideoPlayer.h"
 #include "TrackedPointsList.h"
 #include "GraphView.h"
@@ -50,6 +52,7 @@ private:
 
 	Data::Document m_document;
 	TypeSafeSettings m_typeSafeSettings;
+	Tracking::TrackingManager m_trackingManager;
 	/**
 	 * \brief Undo stack managed by Qt to allow for undo/redo.
 	 */
@@ -58,7 +61,7 @@ private:
 	VideoPlayer* m_videoPlayer;
 	TrackedPointsList* m_trackedPointsList;
 	GraphView* m_graphView;
-
+	QLabel* m_statusLabel;
 };
 
 #endif // MAINWINDOW_H

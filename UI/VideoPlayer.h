@@ -23,6 +23,9 @@ public:
 
 	void resizeEvent(QResizeEvent* event) override;
 
+signals:
+	void ImageClicked(const QPointF& imagePos);
+
 private:
 	void PlayBtnClicked();
 	void Play();

@@ -140,6 +140,11 @@ namespace Data
 		return m_trackedPoints;
 	}
 
+	TrackedPoint& Document::GetTrackedPoint(const int index) const
+	{
+		return *m_trackedPoints[index].get();
+	}
+
 	const TrailLength& Document::GetTrailLength() const
 	{
 		return m_trailLength;

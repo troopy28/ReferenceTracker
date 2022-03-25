@@ -2,7 +2,6 @@
 #include "ui_VideoPlayer.h"
 #include <QPixmap>
 #include <QGraphicsRectItem>
-#include <QPen>
 #include <QDebug>
 
 VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
@@ -41,7 +40,7 @@ VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
 	// Connect the timer's timeout event to the ReadNextFrame function of the video object.
 	connect(&m_timer, &QTimer::timeout, this, &VideoPlayer::TimerTick);
 
-	// Connect the mouse click on the video surface.
+	// Forward the mouse click event. It is only used by the current tracking manager.
 	connect(ui->graphicsView, &ScrollableGraphicsView::LeftClicked, this, &VideoPlayer::OnGraphicsViewClicked);
 
 	CenterVideo();
@@ -133,7 +132,7 @@ void VideoPlayer::CenterVideo()
 {
 	// 2. Center the video.
 	const int width = m_video.GetWidth();
-	const int height = m_video.GetHeigth();
+	const int height = m_video.GetHeight();
 	const int controlWidth = ui->graphicsView->width();
 	const int controlHeight = ui->graphicsView->height();
 
@@ -147,15 +146,18 @@ void VideoPlayer::CenterVideo()
 
 void VideoPlayer::OnGraphicsViewClicked(const QPointF& scenePosition)
 {
-	qDebug() << "scenePosition: " << scenePosition;
-	qDebug() << "imagePosition: " << ScenePosToImagePos(scenePosition);
-
+	const QPoint imagePosition = ScenePosToImagePos(scenePosition).toPoint();
+	if(imagePosition.x() >= 0 && imagePosition.x() < m_video.GetWidth()
+		&& imagePosition.y() >= 0 && imagePosition.y() < m_video.GetHeight())
+	{
+		emit ImageClicked(imagePosition);
+	}
 }
 
 QPointF VideoPlayer::ScenePosToImagePos(const QPointF& scenePosition) const
 {
 	const int width = m_video.GetWidth();
-	const int height = m_video.GetHeigth();
+	const int height = m_video.GetHeight();
 	const int controlWidth = ui->graphicsView->width();
 	const int controlHeight = ui->graphicsView->height();
 	const int xOrigin = controlWidth / 2 - width / 2;
@@ -163,7 +165,7 @@ QPointF VideoPlayer::ScenePosToImagePos(const QPointF& scenePosition) const
 	return {scenePosition.x() - xOrigin, scenePosition.y() - yOrigin};
 }
 
-void VideoPlayer::Render(const int)
+void VideoPlayer::Render(const int currentFrame)
 {
 	// 1. Get the image from the video, and perform some additional drawing on top of it (keyframes etc.).
 	const cv::Mat& currentVideoImage = m_video.GetCurrentImage();
