@@ -11,6 +11,8 @@ class ClickableLabel : public QLabel {
 
 public:
     explicit ClickableLabel(QWidget* parent = Q_NULLPTR, Qt::WindowFlags f = Qt::WindowFlags());
+    ~ClickableLabel() override = default;
+    Q_DISABLE_COPY_MOVE(ClickableLabel);
 
 signals:
     void clicked();

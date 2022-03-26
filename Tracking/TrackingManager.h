@@ -17,20 +17,12 @@ namespace Tracking
 
 	struct TrackerParams
 	{
-		int startFrame;
-		int endFrame;
-		std::vector<int> trackedPointsIndices;
+		int roiSize;
+		//int startFrame; // for future version
+		//int endFrame;
 		QString trackerType;
 		Data::Document& document;
 
-		explicit TrackerParams(Data::Document& doc) :
-			startFrame(0),
-			endFrame(0),
-			trackedPointsIndices(),
-			trackerType(),
-			document(doc)
-		{
-		}
 	};
 
 	_NODISCARD cv::Ptr<cv::Tracker> InitializeTracker(const QString& trackerType);
@@ -90,20 +82,20 @@ namespace Tracking
 	public:
 		explicit AutomaticTrackingManager(const TrackerParams& params);
 
-		void TickTrackers(const cv::Mat& image);
-
+		void InitializeTrackers();
+		void TickTrackers();
 	private:
 		TrackerParams m_params;
 		std::vector<PointTracker> m_trackers;
 	};
 
 
-	class TrackingManager : public QObject
+	class ManualTrackingManager : public QObject
 	{
 		Q_OBJECT
 
 	public:
-		explicit TrackingManager(Data::Document& document);
+		explicit ManualTrackingManager(Data::Document& document);
 		void StartManualTracking(int trackedPointId);
 
 	public slots:

@@ -13,7 +13,7 @@
 #include "ScrollableGraphicsView.h"
 #include "../Actions/TrackedPointCommands.h"
 
-TrackedPointsList::TrackedPointsList(Data::Document& document, QUndoStack& undoStack, Tracking::TrackingManager& trackingManager, QWidget* parent) :
+TrackedPointsList::TrackedPointsList(Data::Document& document, QUndoStack& undoStack, Tracking::ManualTrackingManager& trackingManager, QWidget* parent) :
 	QWidget(parent),
 	m_document(document),
 	m_trackingManager(trackingManager),
@@ -31,7 +31,7 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 {
 	constexpr static int colorSquareSize = 16;
 	// 1. Create the widget.
-	QWidget* pointListItemWidget = new QWidget(this); // todo: warning possible double deletion
+	QWidget* pointListItemWidget = new QWidget(this);
 	pointListItemWidget->setContentsMargins(1, 1, 1, 1);
 	pointListItemWidget->setStyleSheet(QString("QWidget { border-top: 0 solid rgb(69, 69, 69); border-bottom: 1 solid rgb(69, 69, 69);}"));
 	pointListItemWidget->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -124,7 +124,7 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	visibilityDisplayer->setStyleSheet(QString("QWidget { border-width: 0;} QWidget:hover { border-width: 0; color: rgb(170, 170, 170);}"));
 	visibilityDisplayer->setMinimumWidth(colorSquareSize);
 	visibilityDisplayer->setMinimumHeight(colorSquareSize);
-	trackingStateDisplayer->setToolTip("Show / Hide this point's data");
+	visibilityDisplayer->setToolTip("Show / Hide this point's data");
 	const QPixmap visibilityPixmap(":/Resources/show.png");
 	visibilityDisplayer->setPixmap(visibilityPixmap.scaled(colorSquareSize, colorSquareSize));
 	connect(&point, &Data::TrackedPoint::VisibilityChanged, pointListItemWidget, [visibilityDisplayer](const bool visible)

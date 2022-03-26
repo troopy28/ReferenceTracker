@@ -135,7 +135,7 @@ namespace Data
 		return *m_trackedPoints[index];	
 	}
 
-	const std::vector<std::unique_ptr<TrackedPoint>>& Document::GetTrackedPoints() const
+	std::vector<std::unique_ptr<TrackedPoint>>& Document::GetTrackedPoints()
 	{
 		return m_trackedPoints;
 	}

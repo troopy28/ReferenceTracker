@@ -67,7 +67,7 @@ namespace Data
 		TrackedPoint& CreateTrackedPoint(QString name, int index);
 		void RemoveTrackedPoint(int index);
 		TrackedPoint& InsertTrackedPoint(std::unique_ptr<TrackedPoint> point);
-		_NODISCARD const std::vector<std::unique_ptr<TrackedPoint>>& GetTrackedPoints() const;
+		_NODISCARD std::vector<std::unique_ptr<TrackedPoint>>& GetTrackedPoints();
 		_NODISCARD TrackedPoint& GetTrackedPoint(int index) const;
 		_NODISCARD const TrailLength& GetTrailLength() const;
 		_NODISCARD const QVector<int>& GetActivePointIndices() const;

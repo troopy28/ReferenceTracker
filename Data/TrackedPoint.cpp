@@ -73,12 +73,15 @@ namespace Data
 		qDebug() << "Added keyframe at frame " << keyframe.frameIndex << " at position " << keyframe.position;
 	}
 
-	const Keyframe& TrackedPoint::GetKeyframe(const int index)
+	bool TrackedPoint::GetKeyframe(const int index, Keyframe& keyframe)
 	{
 		const auto it = m_keyframes.find(index);
 		if (it != m_keyframes.end())
-			return it.value();
-		throw NoKeyframeFoundException(m_name, index);
+		{
+			keyframe = it.value();
+			return true;
+		}
+		return false;
 	}
 
 	const Keyframe& TrackedPoint::GetLastKeyframe(const int index)
@@ -97,6 +100,12 @@ namespace Data
 	const QMap<int, Keyframe>& TrackedPoint::GetKeyframes() const
 	{
 		return m_keyframes;
+	}
+
+	void TrackedPoint::ClearKeyframes()
+	{
+		m_keyframes.clear();
+		emit KeyframesChanged(QList<Keyframe>());
 	}
 
 	const QColor& TrackedPoint::GetColor() const

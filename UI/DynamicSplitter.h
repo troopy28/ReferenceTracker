@@ -11,6 +11,8 @@ class ClickableSplitterHandle : public QSplitterHandle
 
 public:
 	explicit ClickableSplitterHandle(Qt::Orientation o, DynamicSplitter* parent = nullptr);
+	~ClickableSplitterHandle() override = default;
+	Q_DISABLE_COPY_MOVE(ClickableSplitterHandle);
 
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
@@ -25,6 +27,8 @@ class DynamicSplitter : public QSplitter
 
 public:
 	explicit DynamicSplitter(Qt::Orientation o, QWidget* parent = nullptr);
+	~DynamicSplitter() override = default;
+	Q_DISABLE_COPY_MOVE(DynamicSplitter);
 	void Rotate();
 	void Swap();
 	void Collapse(int collapsedIndex);

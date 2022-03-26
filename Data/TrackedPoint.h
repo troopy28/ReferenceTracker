@@ -64,12 +64,12 @@ namespace Data
 
 		void AddKeyframe(const Keyframe& keyframe);
 		/**
-		 * \brief Used to return the keyframe at the exact index. If there is no keyframe,
-		 * there will be an error.
+		 * \brief Tries returning a keyframe at the given index.
 		 * \param index Index of the keyframe.
-		 * \return Keyframe at the specified index.
+		 * \param keyframe Return param for the keyframe.
+		 * \return Whether there is a keyframe.
 		 */
-		_NODISCARD const Keyframe& GetKeyframe(int index); // todo: rn it's unused. Remove?
+		_NODISCARD bool GetKeyframe(int index, Keyframe& keyframe);
 		/**
 		 * \brief Used to return the first keyframe that can be found starting from the given
 		 * index, and going backwards. This is used for instance by trackers to know which
@@ -80,6 +80,8 @@ namespace Data
 		 */
 		const Keyframe& GetLastKeyframe(int index);
 		_NODISCARD const QMap<int, Keyframe>& GetKeyframes() const;
+
+		void ClearKeyframes();
 
 		_NODISCARD const QColor& GetColor() const;
 		void SetColor(const QColor& color);

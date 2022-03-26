@@ -16,7 +16,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	m_trackingManager(m_document),
 	m_undoStack(),
 	ui(new Ui::MainWindow),
-	m_videoPlayer(new VideoPlayer(m_document.GetVideo(), this)),
+	m_videoPlayer(new VideoPlayer(m_document, this)),
 	m_automaticTrackingDisplay(new AutomaticTrackingDisplay(m_document, m_undoStack, m_trackingManager)),
 	m_trackedPointsList(new TrackedPointsList(m_document, m_undoStack, m_trackingManager, this)),
 	m_graphView(new GraphView(m_document, m_trackingManager, this)),
@@ -42,9 +42,9 @@ MainWindow::MainWindow(QWidget* parent) :
 	connect(&m_document, &Data::Document::DocumentDirtinessChanged, this, &MainWindow::ComputeWindowTitle);
 
 	// Tracking manager.
-	connect(m_videoPlayer, &VideoPlayer::ImageClicked, &m_trackingManager, &Tracking::TrackingManager::OnImageClicked);
-	connect(&m_trackingManager, &Tracking::TrackingManager::ManualTrackingStarted, this, [this](const QString& pointName) {m_statusLabel->setText(QString("Manual tracking started for ") + pointName + "."); });
-	connect(&m_trackingManager, &Tracking::TrackingManager::ManualTrackingEnded, this, [this] {m_statusLabel->setText(QString("Manual tracking stopped.")); });
+	connect(m_videoPlayer, &VideoPlayer::ImageClicked, &m_trackingManager, &Tracking::ManualTrackingManager::OnImageClicked);
+	connect(&m_trackingManager, &Tracking::ManualTrackingManager::ManualTrackingStarted, this, [this](const QString& pointName) {m_statusLabel->setText(QString("Manual tracking started for ") + pointName + "."); });
+	connect(&m_trackingManager, &Tracking::ManualTrackingManager::ManualTrackingEnded, this, [this] {m_statusLabel->setText(QString("Manual tracking stopped.")); });
 
 	m_videoPlayer->Render(0);
 }

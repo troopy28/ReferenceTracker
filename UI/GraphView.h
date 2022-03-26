@@ -12,7 +12,7 @@ class GraphView : public QWidget
 	Q_OBJECT
 
 public:
-	explicit GraphView(Data::Document& document, Tracking::TrackingManager& trackingManager, QWidget* parent = nullptr);
+	explicit GraphView(Data::Document& document, Tracking::ManualTrackingManager& trackingManager, QWidget* parent = nullptr);
 
 protected:
 	void paintEvent(QPaintEvent* evt) override;
@@ -34,7 +34,7 @@ private:
 	_NODISCARD int controlPosToFrame(int controlPos) const;
 
 	Data::Document& m_document;
-	Tracking::TrackingManager& m_trackingManager;
+	Tracking::ManualTrackingManager& m_trackingManager;
 	QPixmap m_headerPixmap;
 	QPixmap m_curvesPixmap;
 	bool m_requireRedraw;

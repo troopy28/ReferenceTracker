@@ -18,7 +18,7 @@ namespace Actions
 
 	void CreateTrackedPointCommand::undo()
 	{
-		m_document.RemoveTrackedPoint(m_document.GetTrackedPoints().size() - 1);
+		m_document.RemoveTrackedPoint(static_cast<int>(m_document.GetTrackedPoints().size()) - 1);
 		m_document.MarkDirty();
 	}
 
@@ -29,7 +29,7 @@ namespace Actions
 
 	RemoveTrackedPointCommand::RemoveTrackedPointCommand(Data::Document& document, const int pointIndex) :
 		m_document(document),
-		m_point(m_document.GetTrackedPoints()[pointIndex]->GetCopy())
+		m_point(m_document.GetTrackedPoint(pointIndex).GetCopy())
 	{
 	}
 

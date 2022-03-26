@@ -4,10 +4,11 @@
 #include <QGraphicsRectItem>
 #include <QDebug>
 
-VideoPlayer::VideoPlayer(Data::Video& video, QWidget* parent) :
+VideoPlayer::VideoPlayer(Data::Document& document, QWidget* parent) :
 	QWidget(parent),
 	ui(new Ui::VideoPlayer),
-	m_video(video),
+	m_document(document),
+	m_video(m_document.GetVideo()),
 	m_pixmapDisplayer(),
 	m_timer(this)
 {
@@ -51,6 +52,7 @@ VideoPlayer::~VideoPlayer()
 	qDebug() << "VideoPlayer::~VideoPlayer()";
 	delete ui;
 }
+
 
 void VideoPlayer::PlayBtnClicked()
 {
@@ -169,14 +171,45 @@ void VideoPlayer::Render(const int currentFrame)
 {
 	// 1. Get the image from the video, and perform some additional drawing on top of it (keyframes etc.).
 	const cv::Mat& currentVideoImage = m_video.GetCurrentImage();
-	// todo: draw the keyframes on top of the video here.
 
-
-	// 2. Put the image in the pixmap displayer.
+	// 2. Convert the image to Qt.
 	const QImage image(currentVideoImage.data, currentVideoImage.cols, currentVideoImage.rows, static_cast<int>(currentVideoImage.step), QImage::Format_BGR888);
 	QPixmap pixmap;
 	pixmap.convertFromImage(image);
+
+	// 3. Perform some additional drawing on the Qt image (draw the motion trails).
+	DrawMotionTrails(pixmap, currentFrame);
+
+	// 4. Put the image
 	m_pixmapDisplayer.setPixmap(pixmap);
+}
+
+
+void VideoPlayer::DrawMotionTrails(QPixmap& pixmap, const int currentFrame)
+{
+	QPainter painter(&pixmap);
+	painter.setRenderHint(QPainter::Antialiasing);
+
+	const std::vector<std::unique_ptr<Data::TrackedPoint>>& trackedPoints = m_document.GetTrackedPoints();
+
+	for(const std::unique_ptr<Data::TrackedPoint>& trackedPoint : trackedPoints)
+	{
+		if (!trackedPoint->IsVisibleInViewport())
+			continue;
+
+		Data::Keyframe keyframe;
+		if(trackedPoint->GetKeyframe(currentFrame, keyframe))
+		{
+			painter.setPen(QPen(trackedPoint->GetColor()));
+			painter.drawEllipse(keyframe.position, 5, 5);
+		}
+	}
+
+
+	//for(int i = -m_document.GetTrailLength().left; i < m_document.GetTrailLength().right; i++)
+	//{
+	//	const int clampedIndex = std::clamp(i, 0, m_video.GetFrameCount() - 1);
+	//}
 }
 
 void VideoPlayer::resizeEvent(QResizeEvent* event)

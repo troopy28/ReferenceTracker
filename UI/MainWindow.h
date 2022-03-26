@@ -53,7 +53,7 @@ private:
 
 	Data::Document m_document;
 	TypeSafeSettings m_typeSafeSettings;
-	Tracking::TrackingManager m_trackingManager;
+	Tracking::ManualTrackingManager m_trackingManager;
 	/**
 	 * \brief Undo stack managed by Qt to allow for undo/redo.
 	 */

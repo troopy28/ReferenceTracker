@@ -7,7 +7,9 @@ class ScrollableGraphicsView : public QGraphicsView
 	Q_OBJECT
 
 public:
-	ScrollableGraphicsView(QWidget* parent = nullptr);
+	explicit ScrollableGraphicsView(QWidget* parent = nullptr);
+	~ScrollableGraphicsView() override = default;
+	Q_DISABLE_COPY_MOVE(ScrollableGraphicsView);
 
 signals:
 	void LeftClicked(const QPointF& position);

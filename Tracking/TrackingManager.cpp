@@ -46,6 +46,11 @@ namespace Tracking
 		{
 			throw TrackingException(m_trackedPoint.GetName(), frameIndex);
 		}
+
+		const int xCenter = m_boudingBox.x + m_boudingBox.width / 2;
+		const int yCenter = m_boudingBox.y + m_boudingBox.height / 2;
+		m_trackedPoint.AddKeyframe(Data::Keyframe{ QPoint(xCenter, yCenter), frameIndex });
+		qDebug() << "Tracking - Position of point" << m_trackedPoint.GetName() << "at frame" << frameIndex << "is (" << xCenter << "," << yCenter << ").";
 	}
 
 	void PointTracker::Initialize(const cv::Mat& image, const int frameIndex, const int roiSize)
@@ -62,34 +67,44 @@ namespace Tracking
 		m_trackers()
 	{
 		// Initialize the trackers: one for each target point.
-		std::for_each(m_params.trackedPointsIndices.begin(), m_params.trackedPointsIndices.end(), [&params, this](const int pointIndex)
+		const auto& trackedPointsIndices = m_params.document.GetActivePointIndices();
+		std::for_each(trackedPointsIndices.begin(), trackedPointsIndices.end(), [&params, this](const int pointIndex)
 			{
 				m_trackers.emplace_back(PointTracker(params.document.GetTrackedPoint(pointIndex), params.trackerType));
 			});
 	}
 
-	void AutomaticTrackingManager::TickTrackers(const cv::Mat& image)
+	void AutomaticTrackingManager::InitializeTrackers()
 	{
-		std::for_each(m_trackers.begin(), m_trackers.end(), [&image, this](PointTracker& tracker)
+		std::for_each(m_trackers.begin(), m_trackers.end(), [this](PointTracker& tracker)
 			{
-				tracker.Tick(image, m_params.document.GetVideo().GetCurrentFrameIndex());
+				tracker.Initialize(m_params.document.GetVideo().GetCurrentImage(), m_params.document.GetVideo().GetCurrentFrameIndex(), m_params.roiSize);
 			});
 	}
 
-	TrackingManager::TrackingManager(Data::Document& document) :
+	void AutomaticTrackingManager::TickTrackers()
+	{
+		std::for_each(m_trackers.begin(), m_trackers.end(), [this](PointTracker& tracker)
+			{
+				tracker.Tick(m_params.document.GetVideo().GetCurrentImage(), m_params.document.GetVideo().GetCurrentFrameIndex());
+			});
+		
+	}
+
+	ManualTrackingManager::ManualTrackingManager(Data::Document& document) :
 		m_document(document),
 		m_manuallyTrackedIndex(std::nullopt)
 	{
 	}
 
-	void TrackingManager::StartManualTracking(int trackedPointId)
+	void ManualTrackingManager::StartManualTracking(int trackedPointId)
 	{
 		m_manuallyTrackedIndex = trackedPointId;
 		emit ManualTrackingStarted(m_document.GetTrackedPoint(trackedPointId).GetName());
 		qDebug() << "Manual tracking started for tracked point " << trackedPointId;
 	}
 
-	void TrackingManager::OnImageClicked(const QPointF& position)
+	void ManualTrackingManager::OnImageClicked(const QPointF& position)
 	{
 		if (!m_manuallyTrackedIndex.has_value())
 			return;

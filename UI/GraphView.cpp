@@ -20,7 +20,7 @@ T Lerp(const T a, const T b, const double f)
 	return static_cast<T>(static_cast<double>(a) + f * static_cast<double>(b - a));
 }
 
-GraphView::GraphView(Data::Document& document, Tracking::TrackingManager& trackingManager, QWidget* parent) :
+GraphView::GraphView(Data::Document& document, Tracking::ManualTrackingManager& trackingManager, QWidget* parent) :
 	QWidget(parent),
 	m_document(document),
 	m_trackingManager(trackingManager),
@@ -35,7 +35,7 @@ GraphView::GraphView(Data::Document& document, Tracking::TrackingManager& tracki
 {
 	connect(&m_document.GetVideo(), &Data::Video::FrameChanged, this, &GraphView::MovePlayheadToFrame);
 	connect(&m_document.GetVideo(), &Data::Video::VideoLoaded, this, &GraphView::ForceRedraw);
-	connect(&m_trackingManager, &Tracking::TrackingManager::KeyframeChanged, this, [this] {m_requireCurveRedraw = true; repaint(); });
+	connect(&m_trackingManager, &Tracking::ManualTrackingManager::KeyframeChanged, this, [this] {m_requireCurveRedraw = true; repaint(); });
 }
 
 

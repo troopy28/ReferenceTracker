@@ -3,7 +3,7 @@
 
 #include <QWidget>
 #include <QGraphicsPixmapItem>
-#include "../Data/Video.h"
+#include "../Data/Document.h"
 #include <QTimer>
 
 namespace Ui {
@@ -15,7 +15,7 @@ class VideoPlayer : public QWidget
 	Q_OBJECT
 
 public:
-	explicit VideoPlayer(Data::Video& video, QWidget* parent = nullptr);
+	explicit VideoPlayer(Data::Document& document, QWidget* parent = nullptr);
 	~VideoPlayer() override;
 	Q_DISABLE_COPY_MOVE(VideoPlayer);
 
@@ -27,6 +27,8 @@ signals:
 	void ImageClicked(const QPointF& imagePos);
 
 private:
+	void DrawMotionTrails(QPixmap& pixmap, int currentFrame);
+
 	void PlayBtnClicked();
 	void Play();
 	void Pause();
@@ -40,9 +42,10 @@ private:
 	void CenterVideo();
 	void OnGraphicsViewClicked(const QPointF& scenePosition);
 
-	QPointF ScenePosToImagePos(const QPointF& scenePosition) const;
+	_NODISCARD QPointF ScenePosToImagePos(const QPointF& scenePosition) const;
 
 	Ui::VideoPlayer* ui;
+	Data::Document& m_document;
 	Data::Video& m_video;
 	QGraphicsPixmapItem m_pixmapDisplayer;
 	QTimer m_timer;
