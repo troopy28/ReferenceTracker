@@ -17,7 +17,7 @@ MainWindow::MainWindow(QWidget* parent) :
 	m_undoStack(),
 	ui(new Ui::MainWindow),
 	m_videoPlayer(new VideoPlayer(m_document, this)),
-	m_automaticTrackingDisplay(new AutomaticTrackingDisplay(m_document, m_undoStack, m_trackingManager)),
+	m_automaticTrackingDisplay(new AutomaticTrackingDisplay(m_document, m_undoStack)),
 	m_trackedPointsList(new TrackedPointsList(m_document, m_undoStack, m_trackingManager, this)),
 	m_graphView(new GraphView(m_document, m_trackingManager, this)),
 	m_statusLabel(new QLabel("", this))

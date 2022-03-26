@@ -11,7 +11,7 @@ class AutomaticTrackingDisplay : public QWidget
 	Q_OBJECT
 
 public:
-	explicit AutomaticTrackingDisplay(Data::Document& document, QUndoStack& undoStack, Tracking::ManualTrackingManager& trackingManager, QWidget* parent = nullptr);
+	explicit AutomaticTrackingDisplay(Data::Document& document, QUndoStack& undoStack, QWidget* parent = nullptr);
 	~AutomaticTrackingDisplay() override = default;
 	Q_DISABLE_COPY_MOVE(AutomaticTrackingDisplay);
 

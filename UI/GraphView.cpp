@@ -76,7 +76,7 @@ void GraphView::mouseMoveEvent(QMouseEvent* evt)
 	repaint();
 }
 
-void GraphView::mouseReleaseEvent(QMouseEvent* evt)
+void GraphView::mouseReleaseEvent(QMouseEvent*)
 {
 	if (!m_movingPlayhead)
 		return;
@@ -127,7 +127,7 @@ void GraphView::SmoothPlayheadMove(const double x)
 
 #pragma region Drawing
 
-void GraphView::paintEvent(QPaintEvent* evt)
+void GraphView::paintEvent(QPaintEvent*)
 {
 	QPainter painter(this);
 	painter.setRenderHint(QPainter::Antialiasing);

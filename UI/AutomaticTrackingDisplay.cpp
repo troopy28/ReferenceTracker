@@ -6,7 +6,7 @@
 
 #include "../Actions/TrackingCommands.h"
 
-AutomaticTrackingDisplay::AutomaticTrackingDisplay(Data::Document& document, QUndoStack& undoStack, Tracking::ManualTrackingManager& trackingManager, QWidget* parent) :
+AutomaticTrackingDisplay::AutomaticTrackingDisplay(Data::Document& document, QUndoStack& undoStack, QWidget* parent) :
 	QWidget(parent),
 	m_document(document),
 	m_undoStack(undoStack),

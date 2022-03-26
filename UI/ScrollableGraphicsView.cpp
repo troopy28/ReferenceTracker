@@ -40,7 +40,7 @@ void ScrollableGraphicsView::mousePressEvent(QMouseEvent* event)
 		// scroll hand mode. We should probably keep track of things properly but it seems to work if you just do this.
 		// I'm not sure why buttons has to be 0 here - if you just clear the left button it doesn't work.
 		QMouseEvent releaseEvent(QEvent::MouseButtonRelease, event->localPos(), event->screenPos(), event->windowPos(),
-			Qt::LeftButton, nullptr, event->modifiers());  // NOLINT(clang-diagnostic-deprecated-declarations)
+			Qt::LeftButton, nullptr, event->modifiers());  // NOLINT(clang-diagnostic-deprecated-declarations) : no way around this...
 		QGraphicsView::mouseReleaseEvent(&releaseEvent);
 
 		setDragMode(QGraphicsView::ScrollHandDrag);
@@ -85,7 +85,7 @@ void ScrollableGraphicsView::HandleSingleClick(const QMouseEvent* evt)
 	emit LeftClicked(scenePosition);
 }
 
-void ScrollableGraphicsView::ScalingTime(double x)
+void ScrollableGraphicsView::ScalingTime(double)
 {
 	constexpr double minimumSizeFactor = 0.1;
 

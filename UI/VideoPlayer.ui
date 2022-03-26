@@ -163,7 +163,7 @@
   <customwidget>
    <class>ScrollableGraphicsView</class>
    <extends>QGraphicsView</extends>
-   <header>ScrollableGraphicsView.h</header>
+   <header>../../../../../UI/ScrollableGraphicsView.h</header>
   </customwidget>
  </customwidgets>
  <resources/>

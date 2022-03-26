@@ -106,7 +106,7 @@ void TrackedPointsList::AddTrackedPoint(Data::TrackedPoint& point)
 	trackingStateDisplayer->setToolTip("Use in Automatic Tracking");
 	const QPixmap trackingStatePixmap(":/Resources/tracking_off.png");
 	trackingStateDisplayer->setPixmap(trackingStatePixmap.scaled(colorSquareSize, colorSquareSize));
-	connect(&m_document, &Data::Document::TrackPointActivationStateChanged, pointListItemWidget, [trackingStateDisplayer, this, &point](const Data::TrackedPoint& tp, const bool visible)
+	connect(&m_document, &Data::Document::TrackPointActivationStateChanged, pointListItemWidget, [trackingStateDisplayer, &point](const Data::TrackedPoint& tp, const bool visible)
 		{
 			if(point.GetPointIndex() == tp.GetPointIndex())
 			{
