@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common.h"
 #include <optional>
 #include "TrackedPoint.h"
 #include "Video.h"

@@ -2,6 +2,7 @@
 
 // Completely copypasted from: https://wiki.qt.io/Clickable_QLabel
 
+#include "../common.h"
 #include <QLabel>
 #include <QWidget>
 #include <Qt>

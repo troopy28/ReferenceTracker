@@ -1,6 +1,7 @@
 #ifndef VIDEOPLAYER_H
 #define VIDEOPLAYER_H
 
+#include "../common.h"
 #include <QWidget>
 #include <QGraphicsPixmapItem>
 #include "../Data/Document.h"

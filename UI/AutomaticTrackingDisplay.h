@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common.h"
 #include <QUndoStack>
 #include <QComboBox>
 #include <QSpinBox>

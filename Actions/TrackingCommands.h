@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common.h"
 #include <QUndoCommand>
 #include "../Data/Document.h"
 #include "../Tracking/TrackingManager.h"

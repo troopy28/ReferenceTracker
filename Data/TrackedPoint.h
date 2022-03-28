@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common.h"
 #include <QVector2D>
 #include <QColor>
 #include <QMap>

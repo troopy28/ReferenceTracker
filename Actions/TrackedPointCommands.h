@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../common.h"
 #include <QLayout>
 #include <QUndoCommand>
 #include "../Data/Document.h"
