@@ -36,7 +36,7 @@ namespace Tracking
 		{
 		}
 
-		_NODISCARD char const* what() const override
+		_NODISCARD char const* what() const noexcept override
 		{
 			return m_customMessage.c_str();
 		}
@@ -54,7 +54,7 @@ namespace Tracking
 		{
 		}
 
-		_NODISCARD char const* what() const override
+		_NODISCARD char const* what() const noexcept override
 		{
 			return m_customMessage.c_str();
 		}
