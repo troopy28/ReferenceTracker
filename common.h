@@ -7,7 +7,7 @@
 #else
 
 #ifndef _NODISCARD
-#define _NODISCARd [[nodiscard]]
+#define _NODISCARD [[nodiscard]]
 #endif // _NODISCARD
 
 #endif
