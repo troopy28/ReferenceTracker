@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../common.h"
+#include <memory>
 #include <QVector2D>
 #include <QColor>
 #include <QMap>
@@ -34,7 +35,7 @@ namespace Data
 		{
 		}
 
-		_NODISCARD char const* what() const override
+		_NODISCARD char const* what() const noexcept override
 		{
 			return m_customMessage.c_str();
 		}
